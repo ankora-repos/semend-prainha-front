@@ -436,6 +436,7 @@ export function RequestDetailPage() {
             </div>
             <div className="p-5 space-y-4">
               <InfoRow icon={User} label="Solicitante" value={request.requester.name} />
+              {request.requester.registrationNumber && <InfoRow icon={User} label="Matrícula" value={request.requester.registrationNumber} />}
               {request.requesterName && <InfoRow icon={User} label="Nome (pessoa física)" value={request.requesterName} />}
               {request.requesterCpf && <InfoRow icon={User} label="CPF" value={request.requesterCpf} />}
               {request.requesterRg && <InfoRow icon={User} label="RG" value={request.requesterRg} />}
