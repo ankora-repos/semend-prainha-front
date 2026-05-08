@@ -700,9 +700,9 @@ export function RequestDetailPage() {
             </div>
             <div className="flex-1 overflow-auto p-4 flex items-center justify-center bg-surface-50 min-h-[300px]">
               {previewMime.startsWith('image/') ? (
-                <img src={previewUrl} alt={previewName} className="max-w-full max-h-[70vh] rounded-lg object-contain shadow-md" />
+                <img src={previewUrl} alt={previewName} className="max-w-full max-h-[50vh] sm:max-h-[65vh] rounded-lg object-contain shadow-md" />
               ) : previewMime === 'application/pdf' ? (
-                <iframe src={previewUrl} title={previewName} className="w-full h-[70vh] rounded-lg border border-surface-200" />
+                <iframe src={previewUrl} title={previewName} className="w-full h-[50vh] sm:h-[65vh] rounded-lg border border-surface-200" />
               ) : (
                 <div className="text-center py-12">
                   <FileTextIcon className="h-12 w-12 text-surface-300 mx-auto mb-3" />
@@ -857,8 +857,8 @@ function Modal({ children, onClose, title, icon }: { children: React.ReactNode; 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200">
       <div className="fixed inset-0 bg-surface-900/40 backdrop-blur-sm transition-opacity" onClick={onClose} />
-      <div className="relative w-full max-w-lg rounded-2xl bg-white shadow-2xl animate-in zoom-in-95 duration-200">
-        <div className="flex items-center justify-between px-6 py-5 border-b border-surface-100">
+      <div className="relative w-full max-w-lg rounded-2xl bg-white shadow-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-surface-100 shrink-0">
           <div className="flex items-center gap-3">
              {icon && <div className="p-2 bg-primary-50 rounded-lg">{icon}</div>}
             <h3 className="text-xl font-bold text-surface-900">{title}</h3>
@@ -867,7 +867,7 @@ function Modal({ children, onClose, title, icon }: { children: React.ReactNode; 
             <X className="h-5 w-5" />
           </button>
         </div>
-        <div className="p-6">
+        <div className="p-6 overflow-y-auto flex-1">
           {children}
         </div>
       </div>

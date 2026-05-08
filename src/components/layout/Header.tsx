@@ -92,7 +92,7 @@ export function Header({ onMenuClick }: HeaderProps) {
 
           {/* Dropdown Menu */}
           {showUserMenu && (
-            <div className="absolute right-0 top-full mt-2 w-64 rounded-2xl border border-surface-200/60 bg-white/95 backdrop-blur-xl p-1 shadow-xl ring-1 ring-black/5 origin-top-right animate-in fade-in zoom-in-95 duration-200">
+            <div className="absolute right-0 top-full mt-2 w-[min(256px,calc(100vw-24px))] rounded-2xl border border-surface-200/60 bg-white/95 backdrop-blur-xl p-1 shadow-xl ring-1 ring-black/5 origin-top-right animate-in fade-in zoom-in-95 duration-200">
               <div className="px-3 py-3 border-b border-surface-100 mb-1">
                 <p className="text-sm font-bold text-surface-900 truncate">{user?.name}</p>
                 <p className="text-xs text-surface-500 mt-0.5 truncate">{user?.email}</p>

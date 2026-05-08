@@ -420,11 +420,11 @@ export function AuditLogsPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <select
           value={params.entityType || ''}
           onChange={(e) => setParams({ ...params, entityType: e.target.value || undefined, page: 1 })}
-          className="rounded-lg border border-surface-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary-400"
+          className="w-full rounded-lg border border-surface-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary-400"
         >
           <option value="">Todas as categorias</option>
           <option value="auth">Autenticação</option>
@@ -441,13 +441,13 @@ export function AuditLogsPage() {
           type="date"
           value={params.from || ''}
           onChange={(e) => setParams({ ...params, from: e.target.value || undefined, page: 1 })}
-          className="rounded-lg border border-surface-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary-400"
+          className="w-full rounded-lg border border-surface-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary-400"
         />
         <input
           type="date"
           value={params.to || ''}
           onChange={(e) => setParams({ ...params, to: e.target.value || undefined, page: 1 })}
-          className="rounded-lg border border-surface-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary-400"
+          className="w-full rounded-lg border border-surface-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary-400"
         />
       </div>
 

@@ -36,7 +36,7 @@ export function NotificationsPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-surface-900">Notificações</h1>
           <p className="text-surface-500 mt-1">{unread > 0 ? `${unread} não lida${unread > 1 ? 's' : ''}` : 'Nenhuma notificação pendente'}</p>
@@ -45,10 +45,11 @@ export function NotificationsPage() {
           <button
             onClick={() => markAllMutation.mutate()}
             disabled={markAllMutation.isPending}
-            className="inline-flex items-center gap-2 rounded-lg border border-surface-200 bg-white px-3 py-2 text-sm font-medium text-surface-600 hover:bg-surface-50 transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg border border-surface-200 bg-white px-3 py-2 text-sm font-medium text-surface-600 hover:bg-surface-50 transition-colors shrink-0"
           >
             <CheckCheck className="h-4 w-4" />
-            Marcar todas como lidas
+            <span className="hidden sm:inline">Marcar todas como lidas</span>
+            <span className="sm:hidden">Marcar lidas</span>
           </button>
         )}
       </div>

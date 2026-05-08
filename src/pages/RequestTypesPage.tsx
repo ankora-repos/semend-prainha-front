@@ -215,8 +215,8 @@ export function RequestTypesPage() {
       {/* Modal Criar/Editar */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={closeModal}>
-          <div className="w-full max-w-lg rounded-2xl bg-white shadow-xl" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between border-b border-surface-100 px-6 py-4">
+          <div className="w-full max-w-lg rounded-2xl bg-white shadow-xl max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between border-b border-surface-100 px-6 py-4 shrink-0">
               <h2 className="text-lg font-bold text-surface-900">
                 {editingId ? 'Editar Tipo de Solicitação' : 'Novo Tipo de Solicitação'}
               </h2>
@@ -225,7 +225,7 @@ export function RequestTypesPage() {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6 space-y-5">
+            <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto flex-1">
               <div>
                 <label className="block text-sm font-medium text-surface-700 mb-1.5">Nome *</label>
                 <input

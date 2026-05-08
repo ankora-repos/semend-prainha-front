@@ -125,7 +125,7 @@ export function UsersPage() {
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200">
           <div className="fixed inset-0 bg-surface-900/40 backdrop-blur-sm transition-opacity" onClick={() => setShowForm(false)} />
-          <div className="relative w-full max-w-md rounded-2xl bg-white p-6 sm:p-8 shadow-2xl animate-in zoom-in-95 duration-200">
+          <div className="relative w-full max-w-md rounded-2xl bg-white p-6 sm:p-8 shadow-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h3 className="text-xl font-bold text-surface-900 tracking-tight">Novo Usuário</h3>
@@ -150,7 +150,7 @@ export function UsersPage() {
                   />
                 </div>
               ))}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-surface-500 mb-1.5">Setor</label>
                   <select required value={form.sectorId} onChange={(e) => setForm({ ...form, sectorId: e.target.value })} className="w-full rounded-xl border border-surface-200/80 bg-surface-50/50 px-3.5 py-2.5 text-sm font-medium text-surface-900 outline-none focus:bg-white focus:border-primary-400 focus:ring-4 focus:ring-primary-100 transition-all hover:border-surface-300">

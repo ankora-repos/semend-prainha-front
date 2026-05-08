@@ -149,7 +149,7 @@ export function DashboardPage() {
               </div>
 
               {/* Enhanced Legend list */}
-              <div className="w-full grid grid-cols-2 gap-x-4 gap-y-3">
+              <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
                 {pieData.map((item, i) => (
                   <div key={item.status} className="flex items-center justify-between p-2 rounded-lg hover:bg-surface-50 transition-colors">
                     <div className="flex items-center gap-2.5 min-w-0">
