@@ -20,6 +20,7 @@ import { RequestTypesPage } from '@/pages/RequestTypesPage';
 import { ReportsPage } from '@/pages/ReportsPage';
 import { AuditLogsPage } from '@/pages/AuditLogsPage';
 import { MyAccountPage } from '@/pages/MyAccountPage';
+import { PublicLookupPage } from '@/pages/PublicLookupPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 
 const queryClient = new QueryClient({
@@ -51,6 +52,7 @@ export default function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/esqueci-senha" element={<ForgotPasswordPage />} />
             <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
+            <Route path="/consulta" element={<PublicLookupPage />} />
 
             <Route element={<ProtectedRoute />}>
               <Route element={<AppLayout />}>

@@ -163,12 +163,18 @@ export function LoginPage() {
               )}
             </button>
 
-            <div className="text-center">
+            <div className="text-center space-y-2">
               <Link
                 to="/esqueci-senha"
-                className="text-sm text-surface-500 hover:text-primary-600 transition-colors"
+                className="block text-sm text-surface-500 hover:text-primary-600 transition-colors"
               >
                 Esqueceu sua senha?
+              </Link>
+              <Link
+                to="/consulta"
+                className="block text-sm font-medium text-primary-600 hover:text-primary-700 transition-colors"
+              >
+                Consultar andamento de protocolo
               </Link>
             </div>
           </form>
