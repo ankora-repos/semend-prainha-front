@@ -19,6 +19,8 @@ import { RolesPage } from '@/pages/RolesPage';
 import { RequestTypesPage } from '@/pages/RequestTypesPage';
 import { ReportsPage } from '@/pages/ReportsPage';
 import { AuditLogsPage } from '@/pages/AuditLogsPage';
+import { MyAccountPage } from '@/pages/MyAccountPage';
+import { NotFoundPage } from '@/pages/NotFoundPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -63,8 +65,10 @@ export default function App() {
                 <Route path="/tipos-solicitacao" element={<RequestTypesPage />} />
                 <Route path="/relatorios" element={<ReportsPage />} />
                 <Route path="/auditoria" element={<AuditLogsPage />} />
+                <Route path="/minha-conta" element={<MyAccountPage />} />
               </Route>
             </Route>
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </AuthProvider>
       </BrowserRouter>

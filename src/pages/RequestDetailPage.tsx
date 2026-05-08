@@ -61,6 +61,8 @@ export function RequestDetailPage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewMime, setPreviewMime] = useState<string>('');
   const [previewName, setPreviewName] = useState<string>('');
+  const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState('');
 
   const forwardMutation = useMutation({
     mutationFn: () => tramitationsApi.forward(id!, { toSectorCode: forwardCode, notes: forwardNotes || undefined }),
@@ -138,6 +140,18 @@ export function RequestDetailPage() {
       setPreviewUrl(url);
       setPreviewMime(mimeType);
       setPreviewName(filename);
+    } catch (err) {
+      toast.error(extractErrorMessage(err));
+    }
+  }
+
+  async function handleRename(attachmentId: string) {
+    if (!renameValue.trim()) return;
+    try {
+      await attachmentsApi.rename(attachmentId, renameValue.trim());
+      queryClient.invalidateQueries({ queryKey: ['requests', id] });
+      toast.success('Anexo renomeado com sucesso');
+      setRenamingId(null);
     } catch (err) {
       toast.error(extractErrorMessage(err));
     }
@@ -501,10 +515,36 @@ export function RequestDetailPage() {
                           }
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-bold text-surface-900 truncate">{att.filename}</p>
+                          {renamingId === att.id ? (
+                            <div className="flex items-center gap-1.5">
+                              <input
+                                autoFocus
+                                value={renameValue}
+                                onChange={(e) => setRenameValue(e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') handleRename(att.id);
+                                  if (e.key === 'Escape') setRenamingId(null);
+                                }}
+                                className="flex-1 rounded-lg border border-primary-300 bg-white px-2 py-1 text-sm font-medium text-surface-900 outline-none focus:ring-2 focus:ring-primary-100"
+                              />
+                              <button onClick={() => handleRename(att.id)} className="text-xs font-bold text-primary-600 hover:text-primary-700">OK</button>
+                              <button onClick={() => setRenamingId(null)} className="text-xs font-bold text-surface-400 hover:text-surface-600">
+                                <X className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                          ) : (
+                            <p className="text-sm font-bold text-surface-900 truncate">{att.filename}</p>
+                          )}
                           <p className="text-xs font-medium text-surface-400">{formatFileSize(att.sizeBytes)}</p>
                         </div>
                         <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => { setRenamingId(att.id); setRenameValue(att.filename.replace(/\.[^/.]+$/, '')); }}
+                            title="Renomear"
+                            className="h-8 w-8 rounded-full flex items-center justify-center text-surface-400 hover:bg-amber-50 hover:text-amber-600 transition-all"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </button>
                           <button
                             onClick={() => handlePreview(att.id, att.filename, att.mimeType ?? 'application/pdf')}
                             title="Visualizar"

@@ -2,7 +2,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { notificationsApi } from '@/api/notifications.api';
-import { Bell, Menu, LogOut, ChevronDown, User as UserIcon } from 'lucide-react';
+import { Bell, Menu, LogOut, ChevronDown, User as UserIcon, Settings } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 
 interface HeaderProps {
@@ -100,6 +100,13 @@ export function Header({ onMenuClick }: HeaderProps) {
                   {user?.sector?.name}
                 </div>
               </div>
+              <button
+                onClick={() => { setShowUserMenu(false); navigate('/minha-conta'); }}
+                className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-surface-700 hover:bg-surface-50 transition-colors"
+              >
+                <Settings className="h-4 w-4" />
+                Minha Conta
+              </button>
               <button
                 onClick={handleLogout}
                 className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-danger-600 hover:bg-danger-50 transition-colors"

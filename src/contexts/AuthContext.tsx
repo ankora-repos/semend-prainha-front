@@ -9,6 +9,7 @@ interface AuthContextValue {
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  refreshUser: () => Promise<void>;
   can: (permission: keyof Permissions) => boolean;
   isSuperadmin: boolean;
 }
@@ -46,6 +47,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAccessToken(null);
   }, []);
 
+  const refreshUser = useCallback(async () => {
+    const updated = await authApi.me();
+    setUser(updated);
+  }, []);
+
   const can = useCallback(
     (permission: keyof Permissions): boolean => {
       if (!user) return false;
@@ -65,6 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: !!user,
         login,
         logout,
+        refreshUser,
         can,
         isSuperadmin,
       }}

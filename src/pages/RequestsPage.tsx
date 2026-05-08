@@ -20,6 +20,7 @@ export function RequestsPage() {
   const navigate = useNavigate();
   const [showFilters, setShowFilters] = useState(false);
   const [params, setParams] = useState<ListRequestsParams>({ page: 1, limit: 15 });
+  const [searchInput, setSearchInput] = useState('');
 
   const { data, isLoading } = useQuery({
     queryKey: ['requests', params],
@@ -86,10 +87,31 @@ export function RequestsPage() {
         </div>
       </div>
 
+      {/* Search bar */}
+      <div className="relative">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-surface-400" />
+        <input
+          type="text"
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') updateFilter('search', searchInput.trim());
+          }}
+          placeholder="Buscar por número do protocolo ou nome do solicitante..."
+          className="w-full rounded-2xl border border-surface-200/60 bg-white pl-11 pr-24 py-3 text-sm font-medium text-surface-900 outline-none focus:border-primary-400 focus:ring-4 focus:ring-primary-100 transition-all shadow-xs placeholder:text-surface-400"
+        />
+        <button
+          onClick={() => updateFilter('search', searchInput.trim())}
+          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-xl bg-primary-600 px-4 py-1.5 text-xs font-bold text-white hover:bg-primary-700 transition-colors"
+        >
+          Buscar
+        </button>
+      </div>
+
       {/* Filters */}
       {showFilters && (
         <div className="rounded-2xl border border-surface-200/60 bg-white p-5 sm:p-6 shadow-sm animate-in slide-in-from-top-2 duration-200">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-surface-500 mb-2">Status</label>
               <select
@@ -128,6 +150,24 @@ export function RequestsPage() {
                   <option key={rt.id} value={rt.id}>{rt.name}</option>
                 ))}
               </select>
+            </div>
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-surface-500 mb-2">Data início</label>
+              <input
+                type="date"
+                value={params.from || ''}
+                onChange={(e) => updateFilter('from', e.target.value)}
+                className="w-full rounded-xl border border-surface-200/80 bg-surface-50/50 px-3.5 py-2.5 text-sm font-medium text-surface-900 outline-none focus:bg-white focus:border-primary-400 focus:ring-4 focus:ring-primary-100 transition-all hover:border-surface-300"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-surface-500 mb-2">Data fim</label>
+              <input
+                type="date"
+                value={params.to || ''}
+                onChange={(e) => updateFilter('to', e.target.value)}
+                className="w-full rounded-xl border border-surface-200/80 bg-surface-50/50 px-3.5 py-2.5 text-sm font-medium text-surface-900 outline-none focus:bg-white focus:border-primary-400 focus:ring-4 focus:ring-primary-100 transition-all hover:border-surface-300"
+              />
             </div>
             <div className="flex items-end pb-1">
               <label className="group flex items-center gap-3 cursor-pointer p-2 rounded-xl hover:bg-surface-50 transition-colors w-full border border-transparent hover:border-surface-200/60">

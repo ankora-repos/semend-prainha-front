@@ -47,8 +47,36 @@ export function NewRequestPage() {
       .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
   }
 
+  function formatRg(value: string) {
+    const digits = value.replace(/\D/g, '').slice(0, 9);
+    if (digits.length <= 2) return digits;
+    if (digits.length <= 5) return digits.replace(/(\d{2})(\d)/, '$1.$2');
+    if (digits.length <= 8) return digits.replace(/(\d{2})(\d{3})(\d)/, '$1.$2.$3');
+    return digits.replace(/(\d{2})(\d{3})(\d{3})(\d)/, '$1.$2.$3-$4');
+  }
+
+  function getAge(birthDate: string): number {
+    const today = new Date();
+    const birth = new Date(birthDate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+    return age;
+  }
+
+  const birthDateError = requesterBirthDate && getAge(requesterBirthDate) < 18
+    ? 'O solicitante deve ter 18 anos ou mais'
+    : '';
+
+  const rgDigits = requesterRg.replace(/\D/g, '');
+  const rgError = rgDigits.length > 0 && (rgDigits.length < 7 || rgDigits.length > 9)
+    ? 'RG deve ter entre 7 e 9 dígitos'
+    : '';
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (birthDateError) return toast.error(birthDateError);
+    if (rgError) return toast.error(rgError);
     const data: CreateRequestDto = { requestTypeId, description };
     if (registrationNumber.trim()) data.registrationNumber = registrationNumber.trim();
     if (requesterName.trim()) data.requesterName = requesterName.trim();
@@ -159,10 +187,12 @@ export function NewRequestPage() {
               <input
                 type="text"
                 value={requesterRg}
-                onChange={(e) => setRequesterRg(e.target.value)}
-                placeholder="Número do RG"
-                className="w-full rounded-lg border border-surface-200 bg-surface-50 px-4 py-2.5 text-sm text-surface-900 placeholder-surface-400 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
+                onChange={(e) => setRequesterRg(formatRg(e.target.value))}
+                placeholder="00.000.000-0"
+                maxLength={12}
+                className={`w-full rounded-lg border bg-surface-50 px-4 py-2.5 text-sm text-surface-900 placeholder-surface-400 outline-none focus:ring-2 ${rgError ? 'border-danger-400 focus:border-danger-400 focus:ring-danger-100' : 'border-surface-200 focus:border-primary-400 focus:ring-primary-100'}`}
               />
+              {rgError && <p className="text-xs text-danger-500 mt-1">{rgError}</p>}
             </div>
             <div>
               <label className="block text-sm font-medium text-surface-700 mb-1.5">Data de Nascimento</label>
@@ -170,8 +200,10 @@ export function NewRequestPage() {
                 type="date"
                 value={requesterBirthDate}
                 onChange={(e) => setRequesterBirthDate(e.target.value)}
-                className="w-full rounded-lg border border-surface-200 bg-surface-50 px-4 py-2.5 text-sm text-surface-900 placeholder-surface-400 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
+                max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
+                className={`w-full rounded-lg border bg-surface-50 px-4 py-2.5 text-sm text-surface-900 placeholder-surface-400 outline-none focus:ring-2 ${birthDateError ? 'border-danger-400 focus:border-danger-400 focus:ring-danger-100' : 'border-surface-200 focus:border-primary-400 focus:ring-primary-100'}`}
               />
+              {birthDateError && <p className="text-xs text-danger-500 mt-1">{birthDateError}</p>}
             </div>
           </div>
         </div>

@@ -93,6 +93,7 @@ export interface ChangeStatusDto {
 }
 
 export interface ListRequestsParams {
+  search?: string;
   status?: RequestStatus;
   sectorCode?: string;
   requestTypeId?: string;
