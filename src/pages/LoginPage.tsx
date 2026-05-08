@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { extractErrorMessage } from '@/lib/errors';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
@@ -162,6 +162,15 @@ export function LoginPage() {
                 'Entrar'
               )}
             </button>
+
+            <div className="text-center">
+              <Link
+                to="/esqueci-senha"
+                className="text-sm text-surface-500 hover:text-primary-600 transition-colors"
+              >
+                Esqueceu sua senha?
+              </Link>
+            </div>
           </form>
 
           <p className="mt-8 text-center text-xs text-surface-400">

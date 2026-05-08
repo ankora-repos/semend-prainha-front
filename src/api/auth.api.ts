@@ -23,4 +23,14 @@ export const authApi = {
     await api.post('/auth/logout');
     setAccessToken(null);
   },
+
+  async forgotPassword(email: string): Promise<{ message: string }> {
+    const res = await api.post<{ message: string }>('/auth/forgot-password', { email });
+    return res.data;
+  },
+
+  async resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
+    const res = await api.post<{ message: string }>('/auth/reset-password', { token, newPassword });
+    return res.data;
+  },
 };
