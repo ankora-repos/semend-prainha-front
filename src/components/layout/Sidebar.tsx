@@ -28,7 +28,7 @@ interface NavItem {
 }
 
 const mainNavItems: NavItem[] = [
-  { label: 'Dashboard', path: '/', icon: LayoutDashboard },
+  { label: 'Painel', path: '/', icon: LayoutDashboard },
   { label: 'Protocolos', path: '/protocolos', icon: FileText },
   { label: 'Novo Protocolo', path: '/protocolos/novo', icon: Plus, permission: 'send' },
   { label: 'Notificações', path: '/notificacoes', icon: Bell },

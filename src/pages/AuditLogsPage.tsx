@@ -48,25 +48,25 @@ function translateAction(log: AuditLog): ActionInfo & { description: string; det
 
   // Dashboard views
   if (action === 'VIEW_DASHBOARD_OVERVIEW') {
-    return { label: 'Consulta', icon: Eye, color: 'bg-blue-50', iconColor: 'text-blue-600', description: 'Consultou o painel geral do dashboard' };
+    return { label: 'Consulta', icon: Eye, color: 'bg-blue-50', iconColor: 'text-blue-600', description: 'Consultou o painel geral' };
   }
   if (action === 'VIEW_DASHBOARD_BY_PERIOD') {
-    return { label: 'Consulta', icon: Eye, color: 'bg-blue-50', iconColor: 'text-blue-600', description: 'Consultou protocolos por período no dashboard' };
+    return { label: 'Consulta', icon: Eye, color: 'bg-blue-50', iconColor: 'text-blue-600', description: 'Consultou protocolos por período no painel' };
   }
   if (action === 'VIEW_DASHBOARD_BY_TYPE') {
-    return { label: 'Consulta', icon: Eye, color: 'bg-blue-50', iconColor: 'text-blue-600', description: 'Consultou protocolos por tipo no dashboard' };
+    return { label: 'Consulta', icon: Eye, color: 'bg-blue-50', iconColor: 'text-blue-600', description: 'Consultou protocolos por tipo no painel' };
   }
   if (action === 'VIEW_DASHBOARD_RESPONSE_TIME') {
-    return { label: 'Consulta', icon: Eye, color: 'bg-blue-50', iconColor: 'text-blue-600', description: 'Consultou tempo de resposta dos setores no dashboard' };
+    return { label: 'Consulta', icon: Eye, color: 'bg-blue-50', iconColor: 'text-blue-600', description: 'Consultou tempo de resposta dos setores no painel' };
   }
   if (action === 'VIEW_DASHBOARD_OVERDUE') {
-    return { label: 'Consulta', icon: Eye, color: 'bg-blue-50', iconColor: 'text-blue-600', description: 'Consultou protocolos atrasados no dashboard' };
+    return { label: 'Consulta', icon: Eye, color: 'bg-blue-50', iconColor: 'text-blue-600', description: 'Consultou protocolos atrasados no painel' };
   }
   if (action === 'VIEW_DASHBOARD_USER_ACTIVITY') {
-    return { label: 'Consulta', icon: Eye, color: 'bg-blue-50', iconColor: 'text-blue-600', description: 'Consultou atividade dos usuários no dashboard' };
+    return { label: 'Consulta', icon: Eye, color: 'bg-blue-50', iconColor: 'text-blue-600', description: 'Consultou atividade dos usuários no painel' };
   }
   if (action.startsWith('VIEW_DASHBOARD')) {
-    return { label: 'Consulta', icon: Eye, color: 'bg-blue-50', iconColor: 'text-blue-600', description: 'Consultou informações do dashboard' };
+    return { label: 'Consulta', icon: Eye, color: 'bg-blue-50', iconColor: 'text-blue-600', description: 'Consultou informações do painel' };
   }
 
   // Token / Auth
@@ -190,7 +190,7 @@ function translateAction(log: AuditLog): ActionInfo & { description: string; det
   }
   if (action === 'DOWNLOAD_ATTACHMENT') {
     return {
-      label: 'Download',
+      label: 'Baixar Anexo',
       icon: Download,
       color: 'bg-indigo-50',
       iconColor: 'text-indigo-600',
@@ -254,7 +254,7 @@ function translateAction(log: AuditLog): ActionInfo & { description: string; det
       }
       // POST /requests/:id/attachments
       if (segments.includes('attachments')) {
-        return { label: 'Upload', icon: Upload, color: 'bg-emerald-50', iconColor: 'text-emerald-600', description: 'Anexou um arquivo ao protocolo' };
+        return { label: 'Envio de Anexo', icon: Upload, color: 'bg-emerald-50', iconColor: 'text-emerald-600', description: 'Anexou um arquivo ao protocolo' };
       }
       // POST /requests (create)
       if (method === 'POST' && segments.length === 1) {
@@ -322,7 +322,7 @@ const ENTITY_TYPE_LABELS: Record<string, string> = {
   auth: 'Autenticação',
   'audit-logs': 'Auditoria',
   notifications: 'Notificação',
-  dashboard: 'Dashboard',
+  dashboard: 'Painel',
   'refresh-token': 'Autenticação',
 };
 
@@ -435,7 +435,7 @@ export function AuditLogsPage() {
           <option value="sectors">Setores</option>
           <option value="roles">Perfis</option>
           <option value="request-types">Tipos de Solicitação</option>
-          <option value="dashboard">Dashboard</option>
+          <option value="dashboard">Painel</option>
         </select>
         <input
           type="date"

@@ -40,7 +40,7 @@ export function DashboardPage() {
       <div className="flex items-center justify-center min-h-[50vh]">
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="h-8 w-8 animate-spin text-primary-500" />
-          <p className="text-sm text-surface-500 font-medium">Carregando dashboard...</p>
+          <p className="text-sm text-surface-500 font-medium">Carregando painel...</p>
         </div>
       </div>
     );

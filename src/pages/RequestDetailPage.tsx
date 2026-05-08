@@ -100,7 +100,7 @@ export function RequestDetailPage() {
     if (!file) return;
     e.target.value = ''; // reset so same file can be selected again
     const MAX_SIZE = 5 * 1024 * 1024;
-    if (file.size > MAX_SIZE) { toast.error('Arquivo muito grande. Maximo: 5MB.'); return; }
+    if (file.size > MAX_SIZE) { toast.error('Arquivo muito grande. Máximo: 5 MB.'); return; }
     // Remove extension for the editable name
     const nameWithoutExt = file.name.replace(/\.[^/.]+$/, '');
     setUploadFilename(nameWithoutExt);
@@ -325,7 +325,7 @@ export function RequestDetailPage() {
           <div className="rounded-2xl border border-surface-200/60 bg-white shadow-sm overflow-hidden">
             <div className="bg-surface-50/50 px-6 py-4 border-b border-surface-100/60">
                <h3 className="text-sm font-bold text-surface-900 flex items-center gap-2 uppercase tracking-wider">
-                 <Clock className="h-4 w-4 text-primary-500" /> Historico e Tramitacoes
+                 <Clock className="h-4 w-4 text-primary-500" /> Histórico e Tramitações
                </h3>
             </div>
             <div className="p-6">
@@ -620,7 +620,7 @@ export function RequestDetailPage() {
               <div className="rounded-xl border border-surface-200 overflow-hidden bg-surface-50 flex items-center justify-center p-2">
                 <img
                   src={URL.createObjectURL(pendingFile)}
-                  alt="Preview"
+                  alt="Pré-visualização"
                   className="max-h-48 rounded-lg object-contain"
                 />
               </div>
@@ -644,7 +644,7 @@ export function RequestDetailPage() {
                   {pendingFile.name.match(/\.[^/.]+$/)?.[0] ?? ''}
                 </span>
               </div>
-              <p className="text-xs text-surface-400 mt-1.5">Renomeie se quiser. A extensao sera mantida automaticamente.</p>
+              <p className="text-xs text-surface-400 mt-1.5">Renomeie se quiser. A extensão será mantida automaticamente.</p>
             </div>
 
             <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t border-surface-100">
@@ -706,7 +706,7 @@ export function RequestDetailPage() {
               ) : (
                 <div className="text-center py-12">
                   <FileTextIcon className="h-12 w-12 text-surface-300 mx-auto mb-3" />
-                  <p className="text-sm text-surface-500">Preview nao disponivel para este tipo de arquivo.</p>
+                  <p className="text-sm text-surface-500">Pré-visualização não disponível para este tipo de arquivo.</p>
                   <a href={previewUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-primary-600 font-bold hover:underline mt-2 inline-block">
                     Abrir em nova aba
                   </a>
