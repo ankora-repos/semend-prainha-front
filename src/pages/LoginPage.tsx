@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useOrganization } from '@/contexts/OrganizationContext';
 import { extractErrorMessage } from '@/lib/errors';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 
 export function LoginPage() {
   const { login, isAuthenticated } = useAuth();
+  const { organization, slug, loading: orgLoading } = useOrganization();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,7 +21,14 @@ export function LoginPage() {
     }
   }, [isAuthenticated, navigate]);
 
-  if (isAuthenticated) {
+  // Redirect to org selection if no slug is set
+  useEffect(() => {
+    if (!orgLoading && !slug) {
+      navigate('/selecionar-organizacao', { replace: true });
+    }
+  }, [slug, orgLoading, navigate]);
+
+  if (isAuthenticated || (!orgLoading && !slug)) {
     return null;
   }
 
@@ -29,7 +38,7 @@ export function LoginPage() {
     setLoading(true);
 
     try {
-      await login(email, password);
+      await login(email, password, slug || undefined);
       navigate('/');
     } catch (err) {
       setError(extractErrorMessage(err));
@@ -37,6 +46,11 @@ export function LoginPage() {
       setLoading(false);
     }
   }
+
+  const orgName = organization?.name || 'Sistema de Protocolo';
+  const orgInitials = organization
+    ? organization.name.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase()
+    : 'SP';
 
   return (
     <div className="min-h-screen flex">
@@ -50,10 +64,10 @@ export function LoginPage() {
         <div className="relative z-10 max-w-md">
           <div className="flex items-center gap-3 mb-8">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm text-white font-bold text-lg">
-              SP
+              {orgInitials}
             </div>
             <div>
-              <h2 className="text-white font-semibold text-lg">SEMED Prainha</h2>
+              <h2 className="text-white font-semibold text-lg">{orgName}</h2>
               <p className="text-primary-200 text-sm">Sistema de Protocolo</p>
             </div>
           </div>
@@ -86,10 +100,10 @@ export function LoginPage() {
           {/* Logo mobile */}
           <div className="flex items-center gap-3 mb-8 lg:hidden">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-600 text-white font-bold text-sm">
-              SP
+              {orgInitials}
             </div>
             <div>
-              <h2 className="text-surface-900 font-semibold">SEMED Prainha</h2>
+              <h2 className="text-surface-900 font-semibold">{orgName}</h2>
               <p className="text-surface-500 text-xs">Sistema de Protocolo</p>
             </div>
           </div>
@@ -180,7 +194,7 @@ export function LoginPage() {
           </form>
 
           <p className="mt-8 text-center text-xs text-surface-400">
-            Secretaria Municipal de Educação de Prainha - PA
+            {orgName}
           </p>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { api } from '@/api/client';
+import { useOrganization } from '@/contexts/OrganizationContext';
 import { statusColor, formatDate } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import {
@@ -44,6 +45,7 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 export function PublicLookupPage() {
+  const { organization, slug } = useOrganization();
   const [mode, setMode] = useState<'cpf' | 'matricula' | 'protocolo'>('cpf');
   const [cpf, setCpf] = useState('');
   const [matricula, setMatricula] = useState('');
@@ -59,6 +61,7 @@ export function PublicLookupPage() {
     setResults(null);
 
     const params: Record<string, string> = {};
+    if (slug) params.slug = slug;
     if (mode === 'cpf') {
       const clean = cpf.replace(/\D/g, '');
       if (clean.length < 11) return setError('CPF deve ter 11 dígitos');
@@ -88,11 +91,21 @@ export function PublicLookupPage() {
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-xl border-b border-surface-200/60 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-3">
-          <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-primary-600 text-white font-black text-xs sm:text-sm shrink-0">
-            SP
+          <div
+            className={cn(
+              'flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl text-white font-black text-xs sm:text-sm shrink-0',
+              !organization?.primaryColor && 'bg-primary-600',
+            )}
+            style={organization?.primaryColor ? { backgroundColor: organization.primaryColor } : undefined}
+          >
+            {organization?.name
+              ? organization.name.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase()
+              : 'SP'}
           </div>
           <div className="min-w-0">
-            <h1 className="text-base sm:text-lg font-bold text-surface-900 truncate">SEMED Prainha</h1>
+            <h1 className="text-base sm:text-lg font-bold text-surface-900 truncate">
+              {organization?.name || 'Sistema de Protocolo'}
+            </h1>
             <p className="text-xs text-surface-500">Consulta de Protocolos</p>
           </div>
         </div>
@@ -105,7 +118,7 @@ export function PublicLookupPage() {
             Acompanhe seus Protocolos
           </h2>
           <p className="text-surface-500 mt-1.5 sm:mt-2 text-xs sm:text-base max-w-lg mx-auto">
-            Consulte o andamento das suas solicitações na Secretaria Municipal de Educação de Prainha
+            Consulte o andamento das suas solicitacoes{organization ? ` na ${organization.name}` : ''}
           </p>
         </div>
 
@@ -399,7 +412,7 @@ export function PublicLookupPage() {
       {/* Footer */}
       <footer className="border-t border-surface-200/60 bg-white/60 backdrop-blur-sm py-4 sm:py-6">
         <p className="text-center text-xs text-surface-400 px-4">
-          Secretaria Municipal de Educação de Prainha — PA &copy; {new Date().getFullYear()}
+          {organization?.name || 'Sistema de Protocolo'} &copy; {new Date().getFullYear()}
         </p>
       </footer>
     </div>

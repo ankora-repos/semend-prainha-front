@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useOrganization } from '@/contexts/OrganizationContext';
 import { cn } from '@/lib/utils';
 import {
   LayoutDashboard,
@@ -13,6 +14,7 @@ import {
   ScrollText,
   FileDown,
   X,
+  Globe,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -44,7 +46,8 @@ const adminNavItems: NavItem[] = [
 ];
 
 export function Sidebar({ open, onClose }: SidebarProps) {
-  const { can } = useAuth();
+  const { can, isSuperadmin } = useAuth();
+  const { organization } = useOrganization();
 
   const filteredMainItems = mainNavItems.filter(
     (item) => !item.permission || can(item.permission),
@@ -57,12 +60,20 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     <div className="flex h-full flex-col">
       {/* Logo Area */}
       <div className="flex h-[72px] items-center gap-3.5 px-6 border-b border-surface-100">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 text-white font-bold text-sm shadow-md ring-1 ring-primary-900/10 shrink-0">
-          SP
+        <div
+          className={cn(
+            'flex h-10 w-10 items-center justify-center rounded-xl text-white font-bold text-sm shadow-md ring-1 ring-primary-900/10 shrink-0',
+            !organization?.primaryColor && 'bg-gradient-to-br from-primary-500 to-primary-700',
+          )}
+          style={organization?.primaryColor ? { backgroundColor: organization.primaryColor } : undefined}
+        >
+          {organization?.name
+            ? organization.name.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase()
+            : 'SP'}
         </div>
         <div className="flex flex-col min-w-0">
           <span className="text-sm font-bold text-surface-900 leading-tight tracking-tight truncate">
-            SEMED
+            {organization?.name || 'Sistema'}
           </span>
           <span className="text-[13px] font-medium text-surface-500 leading-tight truncate">
             Protocolo
@@ -121,12 +132,37 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             </div>
           </div>
         )}
+
+        {isSuperadmin && (
+          <div>
+            <p className="mb-3 px-3.5 text-xs font-bold uppercase tracking-wider text-surface-400">
+              Super Admin
+            </p>
+            <div className="space-y-1.5">
+              <NavLink
+                to="/admin/organizacoes"
+                onClick={onClose}
+                className={({ isActive }) =>
+                  cn(
+                    'group flex items-center gap-3.5 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all duration-200 border',
+                    isActive
+                      ? 'bg-white shadow-sm border-surface-200 text-primary-600'
+                      : 'border-transparent text-surface-600 hover:bg-surface-50 hover:text-surface-900',
+                  )
+                }
+              >
+                <Globe className="h-5 w-5 shrink-0 transition-colors" />
+                <span>Organizacoes</span>
+              </NavLink>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Footer */}
       <div className="px-6 py-4 border-t border-surface-100 bg-surface-50/50">
         <p className="text-[11px] font-medium text-surface-400 text-center uppercase tracking-wider">
-          SEMED Prainha © 2026
+          {organization?.name || 'Sistema de Protocolo'} &copy; {new Date().getFullYear()}
         </p>
       </div>
     </div>
