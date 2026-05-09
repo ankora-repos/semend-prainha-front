@@ -18,6 +18,7 @@ export interface OrganizationListItem {
 export interface CreateOrganizationDto {
   name: string;
   slug: string;
+  adminName: string;
   adminEmail: string;
   adminPassword: string;
   plan?: string;

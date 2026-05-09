@@ -33,6 +33,7 @@ export function AdminOrganizationsPage() {
   // Form state
   const [formName, setFormName] = useState('');
   const [formSlug, setFormSlug] = useState('');
+  const [formAdminName, setFormAdminName] = useState('');
   const [formAdminEmail, setFormAdminEmail] = useState('');
   const [formAdminPassword, setFormAdminPassword] = useState('');
   const [formPlan, setFormPlan] = useState('FREE');
@@ -76,6 +77,7 @@ export function AdminOrganizationsPage() {
   function openCreate() {
     setFormName('');
     setFormSlug('');
+    setFormAdminName('');
     setFormAdminEmail('');
     setFormAdminPassword('');
     setFormPlan('FREE');
@@ -88,6 +90,7 @@ export function AdminOrganizationsPage() {
     setFormName(org.name);
     setFormSlug(org.slug);
     setFormPlan(org.plan);
+    setFormAdminName('');
     setFormAdminEmail('');
     setFormAdminPassword('');
     setFormError('');
@@ -109,6 +112,7 @@ export function AdminOrganizationsPage() {
       createMutation.mutate({
         name: formName,
         slug: formSlug,
+        adminName: formAdminName,
         adminEmail: formAdminEmail,
         adminPassword: formAdminPassword,
         plan: formPlan,
@@ -297,6 +301,21 @@ export function AdminOrganizationsPage() {
 
               {modalMode === 'create' && (
                 <>
+                  <div>
+                    <label htmlFor="adminName" className="block text-sm font-medium text-surface-700 mb-1.5">
+                      Nome do administrador
+                    </label>
+                    <input
+                      id="adminName"
+                      type="text"
+                      value={formAdminName}
+                      onChange={(e) => setFormAdminName(e.target.value)}
+                      placeholder="Nome completo do administrador"
+                      required
+                      className="w-full rounded-lg border border-surface-200 bg-surface-50 px-4 py-2.5 text-sm text-surface-900 placeholder-surface-400 focus:border-primary-400 focus:bg-white focus:ring-2 focus:ring-primary-100 outline-none transition-all"
+                    />
+                  </div>
+
                   <div>
                     <label htmlFor="adminEmail" className="block text-sm font-medium text-surface-700 mb-1.5">
                       E-mail do administrador
