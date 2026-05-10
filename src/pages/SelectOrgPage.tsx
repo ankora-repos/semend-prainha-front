@@ -104,7 +104,7 @@ export function SelectOrgPage() {
                   type="text"
                   value={inputSlug}
                   onChange={(e) => setInputSlug(e.target.value)}
-                  placeholder="ex: semed-prainha"
+                  placeholder="ex: minha-organizacao"
                   required
                   autoFocus
                   className="w-full rounded-lg border border-surface-200 bg-surface-50 pl-10 pr-4 py-2.5 text-sm text-surface-900 placeholder-surface-400 focus:border-primary-400 focus:bg-white focus:ring-2 focus:ring-primary-100 outline-none transition-all"
