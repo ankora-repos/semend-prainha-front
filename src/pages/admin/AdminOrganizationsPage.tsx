@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { organizationsApi, type OrganizationListItem, type CreateOrganizationDto, type OrgAnalytics } from '@/api/organizations.api';
+import { organizationsApi, type OrganizationListItem, type CreateOrganizationDto } from '@/api/organizations.api';
 import { extractErrorMessage } from '@/lib/errors';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
