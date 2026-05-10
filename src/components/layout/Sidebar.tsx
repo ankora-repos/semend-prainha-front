@@ -9,6 +9,7 @@ import {
   Users,
   Building2,
   Shield,
+  ShieldCheck,
   ClipboardList,
   Bell,
   ScrollText,
@@ -139,21 +140,27 @@ export function Sidebar({ open, onClose }: SidebarProps) {
               Super Admin
             </p>
             <div className="space-y-1.5">
-              <NavLink
-                to="/admin/organizacoes"
-                onClick={onClose}
-                className={({ isActive }) =>
-                  cn(
-                    'group flex items-center gap-3.5 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all duration-200 border',
-                    isActive
-                      ? 'bg-white shadow-sm border-surface-200 text-primary-600'
-                      : 'border-transparent text-surface-600 hover:bg-surface-50 hover:text-surface-900',
-                  )
-                }
-              >
-                <Globe className="h-5 w-5 shrink-0 transition-colors" />
-                <span>Organizacoes</span>
-              </NavLink>
+              {[
+                { to: '/admin/organizacoes', label: 'Organizações', icon: Globe },
+                { to: '/admin/superadmins', label: 'Super Admins', icon: ShieldCheck },
+              ].map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  onClick={onClose}
+                  className={({ isActive }) =>
+                    cn(
+                      'group flex items-center gap-3.5 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all duration-200 border',
+                      isActive
+                        ? 'bg-white shadow-sm border-surface-200 text-primary-600'
+                        : 'border-transparent text-surface-600 hover:bg-surface-50 hover:text-surface-900',
+                    )
+                  }
+                >
+                  <item.icon className="h-5 w-5 shrink-0 transition-colors" />
+                  <span>{item.label}</span>
+                </NavLink>
+              ))}
             </div>
           </div>
         )}

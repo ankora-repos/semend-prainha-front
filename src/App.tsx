@@ -24,6 +24,7 @@ import { AuditLogsPage } from '@/pages/AuditLogsPage';
 import { MyAccountPage } from '@/pages/MyAccountPage';
 import { PublicLookupPage } from '@/pages/PublicLookupPage';
 import { AdminOrganizationsPage } from '@/pages/admin/AdminOrganizationsPage';
+import { SuperAdminsPage } from '@/pages/admin/SuperAdminsPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 
 const queryClient = new QueryClient({
@@ -74,6 +75,7 @@ export default function App() {
                   <Route path="/auditoria" element={<AuditLogsPage />} />
                   <Route path="/minha-conta" element={<MyAccountPage />} />
                   <Route path="/admin/organizacoes" element={<AdminOrganizationsPage />} />
+                  <Route path="/admin/superadmins" element={<SuperAdminsPage />} />
                 </Route>
               </Route>
               <Route path="*" element={<NotFoundPage />} />
