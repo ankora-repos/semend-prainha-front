@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { dashboardApi } from '@/api/dashboard.api';
 import { formatStatus } from '@/lib/format';
@@ -26,6 +27,7 @@ const PERIOD_OPTIONS = [
 ];
 
 export function DashboardPage() {
+  const navigate = useNavigate();
   const [periodGranularity, setPeriodGranularity] = useState<'week' | 'month' | 'quarter'>('week');
 
   const { data: overview, isLoading } = useQuery({
@@ -474,7 +476,8 @@ export function DashboardPage() {
                 return (
                   <div
                     key={protocol.id}
-                    className="flex items-center justify-between gap-3 rounded-xl border border-danger-100 bg-danger-50/30 p-3 hover:bg-danger-50/60 transition-colors"
+                    onClick={() => navigate(`/protocolos/${protocol.id}`)}
+                    className="flex items-center justify-between gap-3 rounded-xl border border-danger-100 bg-danger-50/30 p-3 hover:bg-danger-50/60 transition-colors cursor-pointer"
                   >
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 mb-1">
