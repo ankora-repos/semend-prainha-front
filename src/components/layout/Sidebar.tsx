@@ -1,6 +1,8 @@
 import { NavLink } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrganization } from '@/contexts/OrganizationContext';
+import { notificationsApi } from '@/api/notifications.api';
 import { cn } from '@/lib/utils';
 import {
   LayoutDashboard,
@@ -47,8 +49,15 @@ const adminNavItems: NavItem[] = [
 ];
 
 export function Sidebar({ open, onClose }: SidebarProps) {
-  const { can, isSuperadmin } = useAuth();
+  const { can, isSuperadmin, isAuthenticated } = useAuth();
   const { organization } = useOrganization();
+
+  const { data: unreadCount = 0 } = useQuery({
+    queryKey: ['notifications', 'unread-count'],
+    queryFn: () => notificationsApi.unreadCount(),
+    refetchInterval: 30_000,
+    enabled: isAuthenticated,
+  });
 
   const filteredMainItems = mainNavItems.filter(
     (item) => !item.permission || can(item.permission),
@@ -101,7 +110,12 @@ export function Sidebar({ open, onClose }: SidebarProps) {
               }
             >
               <item.icon className="h-5 w-5 shrink-0 transition-colors" />
-              <span>{item.label}</span>
+              <span className="flex-1">{item.label}</span>
+              {item.path === '/notificacoes' && unreadCount > 0 && (
+                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-danger-500 px-1.5 text-[11px] font-bold text-white">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
             </NavLink>
           ))}
         </div>
