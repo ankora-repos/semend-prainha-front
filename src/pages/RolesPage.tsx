@@ -5,7 +5,7 @@ import type { CreateRoleDto } from '@/api/roles.api';
 import type { Role } from '@/types/auth.types';
 import { extractErrorMessage } from '@/lib/errors';
 import { toast } from 'sonner';
-import { Loader2, Shield, ShieldCheck, Check, X, Plus, Pencil } from 'lucide-react';
+import { Loader2, Shield, ShieldCheck, Check, X, Plus, Pencil, HelpCircle, Eye, FileEdit, Send, PackageCheck, ThumbsUp, ThumbsDown, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const PERM_LABELS: Record<string, string> = {
@@ -38,6 +38,8 @@ function slugify(name: string): string {
 export function RolesPage() {
   const queryClient = useQueryClient();
   const { data: roles, isLoading } = useQuery({ queryKey: ['roles'], queryFn: () => rolesApi.list() });
+
+  const [showGuide, setShowGuide] = useState(false);
 
   // ── Create state ───────────────────────────────────────────────────────────
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -105,6 +107,65 @@ export function RolesPage() {
         >
           <Plus className="h-4 w-4" /> Novo Perfil
         </button>
+      </div>
+
+      {/* Permission Guide */}
+      <div className="rounded-2xl border border-surface-200/60 bg-white shadow-xs overflow-hidden">
+        <button
+          onClick={() => setShowGuide((v) => !v)}
+          className="w-full flex items-center justify-between px-5 sm:px-6 py-4 hover:bg-surface-50/50 transition-colors"
+        >
+          <div className="flex items-center gap-2.5">
+            <div className="p-1.5 rounded-lg bg-primary-50 text-primary-600">
+              <HelpCircle className="h-4 w-4" />
+            </div>
+            <span className="text-sm font-bold text-surface-900">O que cada permissão controla?</span>
+          </div>
+          <ChevronDown className={cn("h-4 w-4 text-surface-400 transition-transform duration-200", showGuide && "rotate-180")} />
+        </button>
+
+        {showGuide && (
+          <div className="px-5 sm:px-6 pb-5 pt-1 border-t border-surface-100 animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-3">
+              <PermGuideItem
+                icon={Eye}
+                label="Visualizar"
+                color="info"
+                description="Ver protocolos, usuários, setores e demais dados do sistema. Sem essa permissão o usuário não acessa nenhuma informação."
+              />
+              <PermGuideItem
+                icon={FileEdit}
+                label="Editar"
+                color="amber"
+                description="Criar, alterar e excluir usuários, setores, perfis e tipos de solicitação. Também permite alterar o status de protocolos."
+              />
+              <PermGuideItem
+                icon={Send}
+                label="Enviar"
+                color="primary"
+                description="Criar novos protocolos, encaminhar para o próximo setor do fluxo e anexar ou renomear arquivos."
+              />
+              <PermGuideItem
+                icon={PackageCheck}
+                label="Receber"
+                color="cyan"
+                description="Confirmar o recebimento de protocolos quando chegam ao setor do usuário."
+              />
+              <PermGuideItem
+                icon={ThumbsUp}
+                label="Aprovar"
+                color="success"
+                description="Deferir (aprovar) protocolos, marcando-os como concluídos com parecer favorável."
+              />
+              <PermGuideItem
+                icon={ThumbsDown}
+                label="Rejeitar"
+                color="danger"
+                description="Indeferir (negar) protocolos. Exige justificativa obrigatória ao rejeitar."
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {isLoading ? (
@@ -393,6 +454,39 @@ export function RolesPage() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Sub-components                                                     */
+/* ------------------------------------------------------------------ */
+
+const GUIDE_COLORS: Record<string, { bg: string; text: string; border: string }> = {
+  info:    { bg: 'bg-info-50',    text: 'text-info-600',    border: 'border-info-100' },
+  amber:   { bg: 'bg-amber-50',   text: 'text-amber-600',   border: 'border-amber-100' },
+  primary: { bg: 'bg-primary-50', text: 'text-primary-600', border: 'border-primary-100' },
+  cyan:    { bg: 'bg-cyan-50',    text: 'text-cyan-600',    border: 'border-cyan-100' },
+  success: { bg: 'bg-success-50', text: 'text-success-600', border: 'border-success-100' },
+  danger:  { bg: 'bg-danger-50',  text: 'text-danger-600',  border: 'border-danger-100' },
+};
+
+function PermGuideItem({ icon: Icon, label, description, color }: {
+  icon: React.ElementType;
+  label: string;
+  description: string;
+  color: string;
+}) {
+  const c = GUIDE_COLORS[color] ?? GUIDE_COLORS.primary;
+  return (
+    <div className={cn('rounded-xl border p-4 flex gap-3', c.border, c.bg + '/30')}>
+      <div className={cn('shrink-0 mt-0.5 p-1.5 rounded-lg', c.bg, c.text)}>
+        <Icon className="h-4 w-4" />
+      </div>
+      <div>
+        <p className={cn('text-sm font-bold mb-0.5', c.text)}>{label}</p>
+        <p className="text-xs text-surface-600 leading-relaxed">{description}</p>
+      </div>
     </div>
   );
 }
