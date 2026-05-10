@@ -12,7 +12,6 @@ export interface CreateRoleDto {
     approve: boolean;
     reject: boolean;
   };
-  isSuperadmin?: boolean;
 }
 
 export const rolesApi = {

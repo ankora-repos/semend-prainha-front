@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { superAdminsApi, type SuperAdminUser } from '@/api/superadmins.api';
+import { superAdminsApi } from '@/api/superadmins.api';
 import { extractErrorMessage } from '@/lib/errors';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';

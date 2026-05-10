@@ -5,7 +5,7 @@ import type { CreateRoleDto } from '@/api/roles.api';
 import type { Role } from '@/types/auth.types';
 import { extractErrorMessage } from '@/lib/errors';
 import { toast } from 'sonner';
-import { Loader2, Shield, ShieldCheck, ShieldAlert, Check, X, Plus, Pencil } from 'lucide-react';
+import { Loader2, Shield, ShieldCheck, Check, X, Plus, Pencil } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const PERM_LABELS: Record<string, string> = {
@@ -127,21 +127,14 @@ export function RolesPage() {
               <div className="flex items-start gap-4 mb-6">
                 <div className={cn(
                   "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ring-1 transition-transform duration-300 group-hover:scale-105",
-                  r.isSuperadmin
-                    ? "bg-gradient-to-br from-amber-50 to-orange-50 text-amber-600 ring-amber-200/60"
-                    : "bg-gradient-to-br from-primary-50 to-indigo-50 text-primary-600 ring-primary-100/50"
+                  "bg-gradient-to-br from-primary-50 to-indigo-50 text-primary-600 ring-primary-100/50"
                 )}>
-                  {r.isSuperadmin ? <ShieldAlert className="h-6 w-6" /> : <ShieldCheck className="h-6 w-6" />}
+                  <ShieldCheck className="h-6 w-6" />
                 </div>
                 <div className="pt-0.5 flex-1">
                   <div className="flex items-center justify-between mb-1">
                     <h3 className="text-base font-bold text-surface-900 leading-tight">{r.name}</h3>
                     <div className="flex items-center gap-1">
-                      {r.isSuperadmin && (
-                        <span className="inline-flex items-center rounded-lg bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-800">
-                          Admin
-                        </span>
-                      )}
                       <button
                         onClick={() => openEdit(r)}
                         className="rounded-lg p-1.5 text-surface-400 hover:bg-primary-50 hover:text-primary-600 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
