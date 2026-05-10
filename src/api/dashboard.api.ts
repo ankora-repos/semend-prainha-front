@@ -1,5 +1,5 @@
 import { api } from './client';
-import type { DashboardOverview, PeriodData, ResponseTimeData, UserActivityData } from '@/types/dashboard.types';
+import type { DashboardOverview, PeriodData, ResponseTimeData, UserActivityData, RequestTypeStats } from '@/types/dashboard.types';
 import type { ProtocolRequest } from '@/types/request.types';
 
 export const dashboardApi = {
@@ -25,6 +25,11 @@ export const dashboardApi = {
 
   async overdue(): Promise<ProtocolRequest[]> {
     const res = await api.get<ProtocolRequest[]>('/dashboard/overdue');
+    return res.data;
+  },
+
+  async byRequestType(): Promise<RequestTypeStats[]> {
+    const res = await api.get<RequestTypeStats[]>('/dashboard/by-request-type');
     return res.data;
   },
 };

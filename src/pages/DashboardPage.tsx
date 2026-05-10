@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { dashboardApi } from '@/api/dashboard.api';
 import { formatStatus } from '@/lib/format';
 import { cn } from '@/lib/utils';
-import { FileText, AlertTriangle, CheckCircle2, Clock, Loader2, TrendingUp, BarChart as BarChartIcon, Users, CalendarClock } from 'lucide-react';
+import { FileText, AlertTriangle, CheckCircle2, Clock, Loader2, TrendingUp, BarChart as BarChartIcon, Users, CalendarClock, Layers } from 'lucide-react';
 import {
   BarChart,
   Bar,
@@ -15,6 +15,7 @@ import {
   PieChart,
   Pie,
   Cell,
+  Legend,
 } from 'recharts';
 
 const PIE_COLORS = ['#6366f1', '#0ea5e9', '#f59e0b', '#f97316', '#10b981', '#ef4444', '#8b5cf6', '#64748b'];
@@ -53,6 +54,12 @@ export function DashboardPage() {
   const { data: overdueProtocols } = useQuery({
     queryKey: ['dashboard', 'overdue'],
     queryFn: () => dashboardApi.overdue(),
+    staleTime: 60_000,
+  });
+
+  const { data: byRequestType } = useQuery({
+    queryKey: ['dashboard', 'by-request-type'],
+    queryFn: () => dashboardApi.byRequestType(),
     staleTime: 60_000,
   });
 
@@ -268,6 +275,63 @@ export function DashboardPage() {
           )}
         </div>
       </div>
+
+      {/* By Request Type */}
+      {byRequestType && byRequestType.length > 0 && (
+        <div className="rounded-2xl border border-surface-200/60 bg-white p-5 sm:p-7 shadow-xs relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-amber-50 rounded-bl-[100px] -z-0 opacity-50"></div>
+          <div className="flex items-center gap-2.5 mb-6 relative z-10">
+            <div className="p-2 rounded-lg bg-amber-50 text-amber-600">
+              <Layers className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-surface-900 leading-tight">Por Tipo de Solicitação</h3>
+              <p className="text-sm font-medium text-surface-500 mt-0.5">Total, no prazo e atrasados por tipo</p>
+            </div>
+          </div>
+
+          <div className="h-[320px] relative z-10">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={byRequestType} margin={{ top: 10, right: 10, left: -10, bottom: 60 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                <XAxis
+                  dataKey="name"
+                  tick={{ fontSize: 11, fill: '#64748b', fontWeight: 500 }}
+                  axisLine={{ stroke: '#e2e8f0' }}
+                  tickLine={false}
+                  tickMargin={12}
+                  angle={-25}
+                  textAnchor="end"
+                  interval={0}
+                />
+                <YAxis
+                  tick={{ fontSize: 12, fill: '#64748b', fontWeight: 500 }}
+                  axisLine={false}
+                  tickLine={false}
+                  allowDecimals={false}
+                  tickMargin={12}
+                />
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: '12px',
+                    border: '1px solid #e2e8f0',
+                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+                    fontSize: '13px',
+                    fontWeight: 500,
+                    padding: '10px 14px',
+                  }}
+                />
+                <Legend
+                  wrapperStyle={{ paddingTop: 16, fontSize: '13px', fontWeight: 600 }}
+                />
+                <Bar dataKey="total" name="Total" fill="#6366f1" radius={[4, 4, 0, 0]} maxBarSize={36} />
+                <Bar dataKey="onTime" name="No Prazo" fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={36} />
+                <Bar dataKey="overdue" name="Atrasados" fill="#ef4444" radius={[4, 4, 0, 0]} maxBarSize={36} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
 
       {/* Response Time */}
       {responseTime && responseTime.length > 0 && (

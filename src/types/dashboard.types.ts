@@ -21,3 +21,10 @@ export interface UserActivityData {
   email: string;
   total_actions: number;
 }
+
+export interface RequestTypeStats {
+  name: string;
+  total: number;
+  onTime: number;
+  overdue: number;
+}
