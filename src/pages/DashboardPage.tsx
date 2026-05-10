@@ -15,7 +15,6 @@ import {
   PieChart,
   Pie,
   Cell,
-  Legend,
 } from 'recharts';
 
 const PIE_COLORS = ['#6366f1', '#0ea5e9', '#f59e0b', '#f97316', '#10b981', '#ef4444', '#8b5cf6', '#64748b'];
@@ -290,19 +289,36 @@ export function DashboardPage() {
             </div>
           </div>
 
-          <div className="h-[320px] relative z-10">
+          {/* Legend outside the chart to avoid overlap */}
+          <div className="flex items-center justify-center gap-6 mb-4 relative z-10">
+            <div className="flex items-center gap-1.5">
+              <div className="h-3 w-3 rounded-sm" style={{ backgroundColor: '#6366f1' }} />
+              <span className="text-sm font-semibold text-surface-600">Total</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="h-3 w-3 rounded-sm" style={{ backgroundColor: '#10b981' }} />
+              <span className="text-sm font-semibold text-surface-600">No Prazo</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="h-3 w-3 rounded-sm" style={{ backgroundColor: '#ef4444' }} />
+              <span className="text-sm font-semibold text-surface-600">Atrasados</span>
+            </div>
+          </div>
+
+          <div className="h-[300px] relative z-10">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={byRequestType} margin={{ top: 10, right: 10, left: -10, bottom: 60 }}>
+              <BarChart data={byRequestType} margin={{ top: 10, right: 10, left: -10, bottom: 40 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
                 <XAxis
                   dataKey="name"
                   tick={{ fontSize: 11, fill: '#64748b', fontWeight: 500 }}
                   axisLine={{ stroke: '#e2e8f0' }}
                   tickLine={false}
-                  tickMargin={12}
-                  angle={-25}
+                  tickMargin={8}
+                  angle={-20}
                   textAnchor="end"
                   interval={0}
+                  height={50}
                 />
                 <YAxis
                   tick={{ fontSize: 12, fill: '#64748b', fontWeight: 500 }}
@@ -320,9 +336,6 @@ export function DashboardPage() {
                     fontWeight: 500,
                     padding: '10px 14px',
                   }}
-                />
-                <Legend
-                  wrapperStyle={{ paddingTop: 16, fontSize: '13px', fontWeight: 600 }}
                 />
                 <Bar dataKey="total" name="Total" fill="#6366f1" radius={[4, 4, 0, 0]} maxBarSize={36} />
                 <Bar dataKey="onTime" name="No Prazo" fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={36} />
