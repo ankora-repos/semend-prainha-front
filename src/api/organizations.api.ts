@@ -32,6 +32,32 @@ export interface UpdateOrganizationDto {
   primaryColor?: string | null;
 }
 
+export interface OrgAnalytics {
+  totals: {
+    organizations: number;
+    activeOrganizations: number;
+    totalUsers: number;
+    totalRequests: number;
+    totalOverdue: number;
+  };
+  perOrg: Array<{
+    id: string;
+    name: string;
+    slug: string;
+    plan: string;
+    isActive: boolean;
+    createdAt: string;
+    totalUsers: number;
+    totalRequests: number;
+    totalSectors: number;
+    totalRequestTypes: number;
+    overdueRequests: number;
+    loginsLast30d: number;
+  }>;
+  planDistribution: Array<{ plan: string; count: number }>;
+  protocolsByMonth: Array<{ month: string; total: number }>;
+}
+
 export const organizationsApi = {
   async list(): Promise<OrganizationListItem[]> {
     const res = await api.get<OrganizationListItem[]>('/organizations');
@@ -55,6 +81,11 @@ export const organizationsApi = {
 
   async deactivate(id: string): Promise<OrganizationListItem> {
     const res = await api.patch<OrganizationListItem>(`/organizations/${id}/deactivate`);
+    return res.data;
+  },
+
+  async analytics(): Promise<OrgAnalytics> {
+    const res = await api.get<OrgAnalytics>('/organizations/admin/analytics');
     return res.data;
   },
 };
