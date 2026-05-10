@@ -16,6 +16,7 @@ export interface AuthUser {
   registrationNumber: string;
   sectorId: string;
   roleId: string;
+  isSuperadmin: boolean;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -28,7 +29,6 @@ export interface Role {
   name: string;
   slug: string;
   permissions: Permissions;
-  isSuperadmin: boolean;
 }
 
 export interface Permissions {

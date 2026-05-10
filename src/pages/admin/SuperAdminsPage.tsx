@@ -13,8 +13,9 @@ interface UserSearchResult {
   id: string;
   name: string;
   email: string;
+  isSuperadmin: boolean;
   organization: { name: string; slug: string };
-  role: { name: string; isSuperadmin: boolean };
+  role: { name: string };
 }
 
 export function SuperAdminsPage() {
@@ -234,7 +235,7 @@ export function SuperAdminsPage() {
                         <p className="text-xs text-surface-500 truncate">{user.email}</p>
                         <p className="text-xs text-surface-400 truncate">{user.organization.name}</p>
                       </div>
-                      {user.role?.isSuperadmin ? (
+                      {user.isSuperadmin ? (
                         <span className="inline-flex items-center gap-1 rounded-md bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-700 shrink-0">
                           <ShieldCheck className="h-3 w-3" />
                           Já é super admin

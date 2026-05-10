@@ -55,13 +55,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const can = useCallback(
     (permission: keyof Permissions): boolean => {
       if (!user) return false;
-      if (user.role.isSuperadmin) return true;
+      if (user.isSuperadmin) return true;
       return user.role.permissions[permission] === true;
     },
     [user],
   );
 
-  const isSuperadmin = user?.role.isSuperadmin ?? false;
+  const isSuperadmin = user?.isSuperadmin ?? false;
 
   return (
     <AuthContext.Provider
