@@ -50,13 +50,13 @@ export function RequestTypesPage() {
   }
 
   function addSectorToFlow() {
-    if (!sectorToAdd || form.flow.includes(sectorToAdd)) return;
+    if (!sectorToAdd) return;
     setForm((f) => ({ ...f, flow: [...f.flow, sectorToAdd] }));
     setSectorToAdd('');
   }
 
-  function removeSectorFromFlow(code: string) {
-    setForm((f) => ({ ...f, flow: f.flow.filter((c) => c !== code) }));
+  function removeSectorFromFlow(index: number) {
+    setForm((f) => ({ ...f, flow: f.flow.filter((_, i) => i !== index) }));
   }
 
   function moveSector(index: number, direction: 'up' | 'down') {
@@ -104,7 +104,7 @@ export function RequestTypesPage() {
     deleteMutation.mutate(t.id);
   }
 
-  const availableSectors = sectors?.filter((s) => s.isActive && !form.flow.includes(s.code)) ?? [];
+  const availableSectors = sectors?.filter((s) => s.isActive) ?? [];
 
   return (
     <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-500">
@@ -259,7 +259,7 @@ export function RequestTypesPage() {
                 {form.flow.length > 0 && (
                   <div className="space-y-2 mb-4">
                     {form.flow.map((code, i) => (
-                      <div key={code} className="flex items-center gap-2 rounded-lg border border-surface-200 bg-surface-50 px-3 py-2">
+                      <div key={`${i}-${code}`} className="flex items-center gap-2 rounded-lg border border-surface-200 bg-surface-50 px-3 py-2">
                         <GripVertical className="h-4 w-4 text-surface-300 shrink-0" />
                         <span className="text-xs font-bold text-surface-500 w-5">{i + 1}.</span>
                         <span className="rounded bg-primary-50 px-2 py-0.5 text-xs font-bold text-primary-700 ring-1 ring-primary-100">
@@ -287,7 +287,7 @@ export function RequestTypesPage() {
                           </button>
                           <button
                             type="button"
-                            onClick={() => removeSectorFromFlow(code)}
+                            onClick={() => removeSectorFromFlow(i)}
                             className="rounded p-1 text-surface-400 hover:bg-danger-50 hover:text-danger-600 transition-colors"
                           >
                             <X className="h-3.5 w-3.5" />
@@ -302,7 +302,7 @@ export function RequestTypesPage() {
                 {form.flow.length > 0 && (
                   <div className="flex flex-wrap items-center gap-1.5 mb-4 p-3 rounded-lg bg-primary-50/50 border border-primary-100">
                     {form.flow.map((code, i) => (
-                      <div key={code} className="flex items-center gap-1.5">
+                      <div key={`${i}-${code}`} className="flex items-center gap-1.5">
                         <span className="rounded-lg bg-white px-2.5 py-1 text-xs font-bold text-primary-700 ring-1 ring-primary-200">
                           {code}
                         </span>
