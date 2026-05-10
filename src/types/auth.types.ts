@@ -16,12 +16,20 @@ export interface AuthUser {
   registrationNumber: string;
   sectorId: string;
   roleId: string;
+  organizationId: string;
   isSuperadmin: boolean;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
   role: Role;
   sector: Sector;
+  organization: {
+    id: string;
+    name: string;
+    slug: string;
+    logo: string | null;
+    primaryColor: string | null;
+  };
 }
 
 export interface Role {

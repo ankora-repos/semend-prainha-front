@@ -1,13 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useOrganization } from '@/contexts/OrganizationContext';
 import { extractErrorMessage } from '@/lib/errors';
-import { Loader2, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Eye, EyeOff, Building2 } from 'lucide-react';
 
 export function LoginPage() {
   const { login, isAuthenticated } = useAuth();
-  const { organization, slug, loading: orgLoading } = useOrganization();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -21,14 +19,7 @@ export function LoginPage() {
     }
   }, [isAuthenticated, navigate]);
 
-  // Redirect to org selection if no slug is set
-  useEffect(() => {
-    if (!orgLoading && !slug) {
-      navigate('/selecionar-organizacao', { replace: true });
-    }
-  }, [slug, orgLoading, navigate]);
-
-  if (isAuthenticated || (!orgLoading && !slug)) {
+  if (isAuthenticated) {
     return null;
   }
 
@@ -38,7 +29,7 @@ export function LoginPage() {
     setLoading(true);
 
     try {
-      await login(email, password, slug || undefined);
+      await login(email, password);
       navigate('/');
     } catch (err) {
       setError(extractErrorMessage(err));
@@ -46,11 +37,6 @@ export function LoginPage() {
       setLoading(false);
     }
   }
-
-  const orgName = organization?.name || 'Sistema de Protocolo';
-  const orgInitials = organization
-    ? organization.name.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase()
-    : 'SP';
 
   return (
     <div className="min-h-screen flex">
@@ -63,26 +49,26 @@ export function LoginPage() {
         </div>
         <div className="relative z-10 max-w-md">
           <div className="flex items-center gap-3 mb-8">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm text-white font-bold text-lg">
-              {orgInitials}
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm text-white">
+              <Building2 className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="text-white font-semibold text-lg">{orgName}</h2>
-              <p className="text-primary-200 text-sm">Sistema de Protocolo</p>
+              <h2 className="text-white font-semibold text-lg">Protocolla</h2>
+              <p className="text-primary-200 text-sm">Gestao de Protocolos</p>
             </div>
           </div>
           <h1 className="text-4xl font-bold text-white leading-tight mb-4">
-            Gestão de Protocolos e Tramitação
+            Gestao de Protocolos e Tramitacao
           </h1>
           <p className="text-primary-200 text-lg leading-relaxed">
-            Controle completo do ciclo de vida dos seus documentos, 
-            da abertura à conclusão, com rastreabilidade total.
+            Controle completo do ciclo de vida dos seus documentos,
+            da abertura a conclusao, com rastreabilidade total.
           </p>
           <div className="mt-10 grid grid-cols-2 gap-4">
             {[
               { label: 'Rastreabilidade', value: 'Completa' },
-              { label: 'Controle de SLA', value: 'Automático' },
-              { label: 'Notificações', value: 'Em tempo real' },
+              { label: 'Controle de SLA', value: 'Automatico' },
+              { label: 'Notificacoes', value: 'Em tempo real' },
               { label: 'Auditoria', value: '100% registrada' },
             ].map((stat) => (
               <div key={stat.label} className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
@@ -99,12 +85,12 @@ export function LoginPage() {
         <div className="w-full max-w-[400px]">
           {/* Logo mobile */}
           <div className="flex items-center gap-3 mb-8 lg:hidden">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-600 text-white font-bold text-sm">
-              {orgInitials}
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-600 text-white">
+              <Building2 className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="text-surface-900 font-semibold">{orgName}</h2>
-              <p className="text-surface-500 text-xs">Sistema de Protocolo</p>
+              <h2 className="text-surface-900 font-semibold">Protocolla</h2>
+              <p className="text-surface-500 text-xs">Gestao de Protocolos</p>
             </div>
           </div>
 
@@ -129,7 +115,7 @@ export function LoginPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="seu.email@semed.prainha.pa.gov.br"
+                placeholder="seu.email@exemplo.com"
                 required
                 autoFocus
                 className="w-full rounded-lg border border-surface-200 bg-surface-50 px-4 py-2.5 text-sm text-surface-900 placeholder-surface-400 focus:border-primary-400 focus:bg-white focus:ring-2 focus:ring-primary-100 outline-none transition-all"
@@ -194,7 +180,7 @@ export function LoginPage() {
           </form>
 
           <p className="mt-8 text-center text-xs text-surface-400">
-            {orgName}
+            Protocolla - Gestao de Protocolos
           </p>
         </div>
       </div>
