@@ -18,7 +18,7 @@ import {
   Cell,
 } from 'recharts';
 
-const PIE_COLORS = ['#6366f1', '#0ea5e9', '#f59e0b', '#f97316', '#10b981', '#ef4444', '#8b5cf6', '#64748b'];
+const PIE_COLORS = ['#3b5fff', '#0ea5e9', '#f59e0b', '#f97316', '#10b981', '#ef4444', '#8b5cf6', '#64748b'];
 
 const PERIOD_OPTIONS = [
   { label: 'Última semana', value: 'week' as const },
@@ -263,7 +263,7 @@ export function DashboardPage() {
                   />
                   <Bar 
                     dataKey="total" 
-                    fill="#6366f1" 
+                    fill="#3b5fff" 
                     radius={[6, 6, 0, 0]} 
                     maxBarSize={40}
                     animationDuration={1500}
@@ -294,7 +294,7 @@ export function DashboardPage() {
           {/* Legend outside the chart to avoid overlap */}
           <div className="flex items-center justify-center gap-6 mb-4 relative z-10">
             <div className="flex items-center gap-1.5">
-              <div className="h-3 w-3 rounded-sm" style={{ backgroundColor: '#6366f1' }} />
+              <div className="h-3 w-3 rounded-sm" style={{ backgroundColor: '#3b5fff' }} />
               <span className="text-sm font-semibold text-surface-600">Total</span>
             </div>
             <div className="flex items-center gap-1.5">
@@ -339,7 +339,7 @@ export function DashboardPage() {
                     padding: '10px 14px',
                   }}
                 />
-                <Bar dataKey="total" name="Total" fill="#6366f1" radius={[4, 4, 0, 0]} maxBarSize={36} />
+                <Bar dataKey="total" name="Total" fill="#3b5fff" radius={[4, 4, 0, 0]} maxBarSize={36} />
                 <Bar dataKey="onTime" name="No Prazo" fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={36} />
                 <Bar dataKey="overdue" name="Atrasados" fill="#ef4444" radius={[4, 4, 0, 0]} maxBarSize={36} />
               </BarChart>

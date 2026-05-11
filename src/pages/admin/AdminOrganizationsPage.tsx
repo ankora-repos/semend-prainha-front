@@ -193,7 +193,7 @@ export function AdminOrganizationsPage() {
                       <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#64748b', fontWeight: 500 }} tickLine={false} axisLine={{ stroke: '#e2e8f0' }} />
                       <YAxis tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} allowDecimals={false} />
                       <Tooltip contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgb(0 0 0 / 0.08)', fontSize: '13px', fontWeight: 500, padding: '8px 12px' }} />
-                      <Bar dataKey="totalRequests" name="Protocolos" fill="#6366f1" radius={[6, 6, 0, 0]} maxBarSize={48} />
+                      <Bar dataKey="totalRequests" name="Protocolos" fill="#3b5fff" radius={[6, 6, 0, 0]} maxBarSize={48} />
                       <Bar dataKey="overdueRequests" name="Atrasados" fill="#ef4444" radius={[6, 6, 0, 0]} maxBarSize={48} />
                     </BarChart>
                   </ResponsiveContainer>
@@ -366,7 +366,7 @@ export function AdminOrganizationsPage() {
                   <div className="flex items-center gap-3 min-w-0">
                     <div
                       className="flex h-10 w-10 items-center justify-center rounded-xl text-white font-bold text-sm shrink-0"
-                      style={{ backgroundColor: org.primaryColor || '#6366f1' }}
+                      style={{ backgroundColor: org.primaryColor || '#3b5fff' }}
                     >
                       {org.name.slice(0, 2).toUpperCase()}
                     </div>
