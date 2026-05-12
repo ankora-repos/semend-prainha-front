@@ -1,20 +1,31 @@
 @import "tailwindcss";
 
 @theme {
-  /* Color System — Premium & Clean (Slate for neutral, Vivid Blue for Primary #0F4CFF) */
+  /*
+   * Color System — Protocolla Brand Identity
+   * Fonte: MANUAL_PROTOCOLLA.pdf (Lusion Studio × Cloud 7, © 2026)
+   *
+   * Cores oficiais da marca:
+   *   Azul Protocolla        → #0F4CFF  (primary-600)
+   *   Escuro Institucional   → #111827  (surface-900)
+   *   Branco Operacional     → #F5F7FB  (surface-50)
+   */
+
+  /* Azul Protocolla — cor principal da marca */
   --color-primary-50: #edf2ff;
   --color-primary-100: #dbe6ff;
   --color-primary-200: #bfd0ff;
   --color-primary-300: #93b0ff;
   --color-primary-400: #6085ff;
   --color-primary-500: #3b5fff;
-  --color-primary-600: #0f4cff;
+  --color-primary-600: #0f4cff; /* ← cor oficial: Azul Protocolla */
   --color-primary-700: #0b3de6;
   --color-primary-800: #1034ba;
   --color-primary-900: #143092;
 
-  --color-surface-50: #f8fafc;
-  --color-surface-100: #f1f5f9;
+  /* Superfícies — baseadas nas cores neutras da marca */
+  --color-surface-50: #f5f7fb;  /* ← cor oficial: Branco Operacional */
+  --color-surface-100: #eef1f7;
   --color-surface-200: #e2e8f0;
   --color-surface-300: #cbd5e1;
   --color-surface-400: #94a3b8;
@@ -22,7 +33,7 @@
   --color-surface-600: #475569;
   --color-surface-700: #334155;
   --color-surface-800: #1e293b;
-  --color-surface-900: #0f172a;
+  --color-surface-900: #111827; /* ← cor oficial: Escuro Institucional */
 
   --color-success-50: #ecfdf5;
   --color-success-500: #10b981;
