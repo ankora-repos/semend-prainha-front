@@ -181,10 +181,15 @@ export function Sidebar({ open, onClose }: SidebarProps) {
       </nav>
 
       {/* Footer */}
-      <div className="px-6 py-4 border-t border-surface-100 bg-surface-50/50">
-        <p className="text-[11px] font-medium text-surface-400 text-center uppercase tracking-wider">
-          {organization?.name || 'Sistema de Protocolo'} &copy; {new Date().getFullYear()}
-        </p>
+      <div className="px-5 py-4 border-t border-surface-100 bg-surface-50/50 flex items-center justify-between gap-3">
+        <img
+          src="/brand/logo-padrao.svg"
+          alt="Protocolla"
+          className="h-5 w-auto opacity-70"
+        />
+        <span className="text-[11px] font-medium text-surface-400 shrink-0">
+          &copy; {new Date().getFullYear()}
+        </span>
       </div>
     </div>
   );

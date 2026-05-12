@@ -84,6 +84,53 @@ Existe uma versão onde o "P" do ícone **integra visualmente** com a palavra "r
 
 ---
 
+## 3.1 Assets de Marca — Catálogo Completo
+
+> Todos os arquivos SVG estão em `public/brand/`. Use sempre SVG na interface web.
+> PNGs disponíveis como fallback em `/tmp/protocolla_brand/LOGO PNG/` (não versionados).
+
+### Ícones (`public/brand/icon-*.svg`)
+
+| Arquivo | Descrição | Uso recomendado |
+|---|---|---|
+| `icon-azul.svg` | P branco · fundo azul `#0F4CFF` | **Principal** — favicon, app icon, avatar de sistema |
+| `icon-preto.svg` | P branco · fundo preto `#111827` | Contextos escuros, splash, crachá |
+| `icon-navy.svg` | P branco · fundo navy `#111827` (tom levemente azulado) | Dark mode, headers escuros |
+| `icon-claro.svg` | P preto · fundo branco `#F5F7FB` | Contextos claros, impressão |
+
+### Logotipos Horizontais (`public/brand/logo-*.svg`)
+
+| Arquivo | Descrição | Uso recomendado |
+|---|---|---|
+| `logo-padrao.svg` | Ícone azul + wordmark escuro · fundo branco | **Padrão** — header, documentos, e-mails |
+| `logo-azul.svg` | Ícone + wordmark todos em `#0F4CFF` | Fundos brancos/cinza, versão monocromática azul |
+| `logo-navy.svg` | Ícone + wordmark todos em navy escuro | Fundos claros, alternativa ao padrão |
+| `logo-preto.svg` | Ícone + wordmark todos em preto | Impressão P&B, contratos, documentos |
+| `logo-branco.svg` | Ícone azul + wordmark branco semitransparente | Fundos escuros ou coloridos |
+| `logo-ghost-claro.svg` | Ícone preto outline + wordmark ghost | Marca d'água, backgrounds sutis |
+| `logo-ghost-branco.svg` | Wordmark ghost branco | Marca d'água em fundos escuros |
+
+### Logotipos Verticais / Stacked (`public/brand/logo-vertical*.svg`)
+
+| Arquivo | Descrição | Uso recomendado |
+|---|---|---|
+| `logo-vertical.svg` | Ícone azul (topo) + wordmark escuro (abaixo) | Capas, banners quadrados, splash screen |
+| `logo-vertical-ghost.svg` | Ícone azul sem container + wordmark ghost | Marca d'água vertical, overlays |
+
+### Guia Rápido de Uso
+
+```
+Sidebar / Header claro    → logo-padrao.svg
+Header escuro / dark mode → logo-branco.svg  ou  logo-navy.svg
+Favicon / PWA icon        → icon-azul.svg
+Splash screen             → logo-vertical.svg
+Impressão P&B             → logo-preto.svg
+Marca d'água              → logo-ghost-claro.svg  ou  logo-ghost-branco.svg
+CTA / Badge azul          → icon-azul.svg
+```
+
+---
+
 ## 4. Tipografia
 
 Com base no estilo visual do manual:
