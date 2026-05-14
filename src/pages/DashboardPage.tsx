@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { dashboardApi } from '@/api/dashboard.api';
+import { useOrganization } from '@/contexts/OrganizationContext';
 import { formatStatus } from '@/lib/format';
 import { cn } from '@/lib/utils';
-import { FileText, AlertTriangle, CheckCircle2, Clock, Loader2, TrendingUp, BarChart as BarChartIcon, Users, CalendarClock, Layers } from 'lucide-react';
+import { FileText, AlertTriangle, CheckCircle2, Clock, Loader2, TrendingUp, BarChart as BarChartIcon, Users, CalendarClock, Layers, Link2, Check, Copy } from 'lucide-react';
 import {
   BarChart,
   Bar,
@@ -28,7 +29,9 @@ const PERIOD_OPTIONS = [
 
 export function DashboardPage() {
   const navigate = useNavigate();
+  const { organization } = useOrganization();
   const [periodGranularity, setPeriodGranularity] = useState<'week' | 'month' | 'quarter'>('week');
+  const [linkCopied, setLinkCopied] = useState(false);
 
   const { data: overview, isLoading } = useQuery({
     queryKey: ['dashboard', 'overview'],
@@ -99,6 +102,40 @@ export function DashboardPage() {
           </p>
         </div>
       </div>
+
+      {/* Public Consultation Link */}
+      {organization?.slug && (
+        <div className="rounded-2xl border border-primary-100 bg-gradient-to-r from-primary-50/80 to-white p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-100 text-primary-600">
+            <Link2 className="h-5 w-5" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-surface-800">Link de Consulta Pública</p>
+            <p className="text-xs text-surface-500 mt-0.5 truncate">
+              {`${window.location.origin}/consulta?slug=${organization.slug}`}
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              navigator.clipboard.writeText(`${window.location.origin}/consulta?slug=${organization.slug}`);
+              setLinkCopied(true);
+              setTimeout(() => setLinkCopied(false), 2000);
+            }}
+            className={cn(
+              'inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all shrink-0',
+              linkCopied
+                ? 'bg-green-100 text-green-700'
+                : 'bg-primary-600 text-white hover:bg-primary-700 shadow-sm',
+            )}
+          >
+            {linkCopied ? (
+              <><Check className="h-4 w-4" /> Copiado!</>
+            ) : (
+              <><Copy className="h-4 w-4" /> Copiar link</>
+            )}
+          </button>
+        </div>
+      )}
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
