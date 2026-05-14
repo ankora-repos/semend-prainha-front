@@ -84,6 +84,19 @@ export const organizationsApi = {
     return res.data;
   },
 
+  async uploadLogo(orgId: string, file: File): Promise<{ logo: string }> {
+    const formData = new FormData();
+    formData.append('logo', file);
+    const res = await api.post<{ logo: string }>(`/organizations/${orgId}/logo`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return res.data;
+  },
+
+  async removeLogo(orgId: string): Promise<void> {
+    await api.delete(`/organizations/${orgId}/logo`);
+  },
+
   async analytics(): Promise<OrgAnalytics> {
     const res = await api.get<OrgAnalytics>('/organizations/admin/analytics');
     return res.data;

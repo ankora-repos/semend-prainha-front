@@ -25,6 +25,7 @@ import { MyAccountPage } from '@/pages/MyAccountPage';
 import { PublicLookupPage } from '@/pages/PublicLookupPage';
 import { AdminOrganizationsPage } from '@/pages/admin/AdminOrganizationsPage';
 import { SuperAdminsPage } from '@/pages/admin/SuperAdminsPage';
+import { OrgSettingsPage } from '@/pages/OrgSettingsPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 
 const queryClient = new QueryClient({
@@ -74,6 +75,7 @@ export default function App() {
                   <Route path="/relatorios" element={<ReportsPage />} />
                   <Route path="/auditoria" element={<AuditLogsPage />} />
                   <Route path="/minha-conta" element={<MyAccountPage />} />
+                  <Route path="/configuracoes" element={<OrgSettingsPage />} />
                   <Route element={<SuperAdminRoute />}>
                     <Route path="/admin/organizacoes" element={<AdminOrganizationsPage />} />
                     <Route path="/admin/superadmins" element={<SuperAdminsPage />} />

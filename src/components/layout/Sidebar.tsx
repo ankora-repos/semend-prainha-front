@@ -18,6 +18,7 @@ import {
   FileDown,
   X,
   Globe,
+  Settings,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -46,6 +47,7 @@ const adminNavItems: NavItem[] = [
   { label: 'Tipos de Solicitação', path: '/tipos-solicitacao', icon: ClipboardList, permission: 'edit' },
   { label: 'Relatórios', path: '/relatorios', icon: FileDown, permission: 'edit' },
   { label: 'Auditoria', path: '/auditoria', icon: ScrollText, permission: 'edit' },
+  { label: 'Configurações', path: '/configuracoes', icon: Settings, permission: 'edit' },
 ];
 
 export function Sidebar({ open, onClose }: SidebarProps) {
@@ -70,17 +72,25 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     <div className="flex h-full flex-col">
       {/* Logo Area */}
       <div className="flex h-[72px] items-center gap-3.5 px-6 border-b border-surface-100">
-        <div
-          className={cn(
-            'flex h-10 w-10 items-center justify-center rounded-xl text-white font-bold text-sm shadow-md ring-1 ring-primary-900/10 shrink-0',
-            !organization?.primaryColor && 'bg-gradient-to-br from-primary-500 to-primary-700',
-          )}
-          style={organization?.primaryColor ? { backgroundColor: organization.primaryColor } : undefined}
-        >
-          {organization?.name
-            ? organization.name.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase()
-            : 'SP'}
-        </div>
+        {organization?.logo ? (
+          <img
+            src={organization.logo}
+            alt={organization.name}
+            className="h-10 w-10 rounded-xl object-cover shadow-md ring-1 ring-surface-200/50 shrink-0"
+          />
+        ) : (
+          <div
+            className={cn(
+              'flex h-10 w-10 items-center justify-center rounded-xl text-white font-bold text-sm shadow-md ring-1 ring-primary-900/10 shrink-0',
+              !organization?.primaryColor && 'bg-gradient-to-br from-primary-500 to-primary-700',
+            )}
+            style={organization?.primaryColor ? { backgroundColor: organization.primaryColor } : undefined}
+          >
+            {organization?.name
+              ? organization.name.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase()
+              : 'Pr'}
+          </div>
+        )}
         <div className="flex flex-col min-w-0">
           <span className="text-sm font-bold text-surface-900 leading-tight tracking-tight truncate">
             {organization?.name || 'Sistema'}
