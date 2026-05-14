@@ -51,8 +51,8 @@ export function SelectOrgPage() {
               <Building2 className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="text-white font-semibold text-lg">Sistema de Protocolo</h2>
-              <p className="text-primary-200 text-sm">Multi-Organizacional</p>
+              <h2 className="text-white font-semibold text-lg">Protocolla</h2>
+              <p className="text-primary-200 text-sm">Gestão de Protocolos</p>
             </div>
           </div>
           <h1 className="text-4xl font-bold text-white leading-tight mb-4">
@@ -74,8 +74,8 @@ export function SelectOrgPage() {
               <Building2 className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="text-surface-900 font-semibold">Sistema de Protocolo</h2>
-              <p className="text-surface-500 text-xs">Multi-Organizacional</p>
+              <h2 className="text-surface-900 font-semibold">Protocolla</h2>
+              <p className="text-surface-500 text-xs">Gestão de Protocolos</p>
             </div>
           </div>
 

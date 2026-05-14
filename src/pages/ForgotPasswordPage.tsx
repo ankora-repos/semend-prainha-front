@@ -53,11 +53,11 @@ export function ForgotPasswordPage() {
         <div className="relative z-10 max-w-md">
           <div className="flex items-center gap-3 mb-8">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm text-white font-bold text-lg">
-              SP
+              Pr
             </div>
             <div>
-              <h2 className="text-white font-semibold text-lg">SEMED Prainha</h2>
-              <p className="text-primary-200 text-sm">Sistema de Protocolo</p>
+              <h2 className="text-white font-semibold text-lg">Protocolla</h2>
+              <p className="text-primary-200 text-sm">Gestão de Protocolos</p>
             </div>
           </div>
           <h1 className="text-4xl font-bold text-white leading-tight mb-4">
@@ -75,11 +75,11 @@ export function ForgotPasswordPage() {
           {/* Logo mobile */}
           <div className="flex items-center gap-3 mb-8 lg:hidden">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-600 text-white font-bold text-sm">
-              SP
+              Pr
             </div>
             <div>
-              <h2 className="text-surface-900 font-semibold">SEMED Prainha</h2>
-              <p className="text-surface-500 text-xs">Sistema de Protocolo</p>
+              <h2 className="text-surface-900 font-semibold">Protocolla</h2>
+              <p className="text-surface-500 text-xs">Gestão de Protocolos</p>
             </div>
           </div>
 
@@ -165,7 +165,7 @@ export function ForgotPasswordPage() {
           )}
 
           <p className="mt-8 text-center text-xs text-surface-400">
-            Secretaria Municipal de Educação de Prainha - PA
+            Protocolla &copy; {new Date().getFullYear()}
           </p>
         </div>
       </div>

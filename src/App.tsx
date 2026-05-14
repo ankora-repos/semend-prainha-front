@@ -4,6 +4,7 @@ import { Toaster } from 'sonner';
 import { OrganizationProvider } from '@/contexts/OrganizationContext';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { ProtectedRoute } from '@/components/layout/ProtectedRoute';
+import { SuperAdminRoute } from '@/components/layout/SuperAdminRoute';
 import { AppLayout } from '@/components/layout/AppLayout';
 
 import { LoginPage } from '@/pages/LoginPage';
@@ -73,8 +74,10 @@ export default function App() {
                   <Route path="/relatorios" element={<ReportsPage />} />
                   <Route path="/auditoria" element={<AuditLogsPage />} />
                   <Route path="/minha-conta" element={<MyAccountPage />} />
-                  <Route path="/admin/organizacoes" element={<AdminOrganizationsPage />} />
-                  <Route path="/admin/superadmins" element={<SuperAdminsPage />} />
+                  <Route element={<SuperAdminRoute />}>
+                    <Route path="/admin/organizacoes" element={<AdminOrganizationsPage />} />
+                    <Route path="/admin/superadmins" element={<SuperAdminsPage />} />
+                  </Route>
                 </Route>
               </Route>
               <Route path="*" element={<NotFoundPage />} />

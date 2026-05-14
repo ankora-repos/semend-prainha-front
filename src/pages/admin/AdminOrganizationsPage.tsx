@@ -464,7 +464,7 @@ export function AdminOrganizationsPage() {
 
               <div>
                 <label htmlFor="orgName" className="block text-sm font-medium text-surface-700 mb-1.5">Nome</label>
-                <input id="orgName" type="text" value={formName} onChange={(e) => setFormName(e.target.value)} placeholder="Ex: SEMED Prainha" required className="w-full rounded-lg border border-surface-200 bg-surface-50 px-4 py-2.5 text-sm text-surface-900 placeholder-surface-400 focus:border-primary-400 focus:bg-white focus:ring-2 focus:ring-primary-100 outline-none transition-all" />
+                <input id="orgName" type="text" value={formName} onChange={(e) => setFormName(e.target.value)} placeholder="Ex: Secretaria de Educação" required className="w-full rounded-lg border border-surface-200 bg-surface-50 px-4 py-2.5 text-sm text-surface-900 placeholder-surface-400 focus:border-primary-400 focus:bg-white focus:ring-2 focus:ring-primary-100 outline-none transition-all" />
               </div>
 
               <div>

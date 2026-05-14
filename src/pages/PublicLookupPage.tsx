@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { api } from '@/api/client';
-import { useOrganization } from '@/contexts/OrganizationContext';
+import { useOrganization, type Organization } from '@/contexts/OrganizationContext';
 import { statusColor, formatDate } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import {
   Search, Loader2, FileText, Clock, Building2, ArrowRight,
   AlertTriangle, CheckCircle, ChevronDown, ChevronUp, MapPin,
+  ShieldAlert, Link2,
 } from 'lucide-react';
 
 interface LookupResult {
@@ -45,7 +47,34 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 export function PublicLookupPage() {
-  const { organization, slug } = useOrganization();
+  const { organization: contextOrg, slug: contextSlug } = useOrganization();
+  const [searchParams] = useSearchParams();
+
+  // Slug obrigatório: vem do contexto (login) ou da URL (?slug=xxx)
+  const urlSlug = searchParams.get('slug') || '';
+  const slug = contextSlug || urlSlug;
+
+  // Se slug vem da URL e não do contexto, buscar dados da org separadamente
+  const [localOrg, setLocalOrg] = useState<Organization | null>(null);
+  const [orgLoading, setOrgLoading] = useState(false);
+  const [orgError, setOrgError] = useState(false);
+
+  useEffect(() => {
+    // Se já temos org do contexto, usar ela
+    if (contextOrg) { setLocalOrg(null); return; }
+    // Se temos slug da URL, buscar org
+    if (urlSlug && !contextSlug) {
+      setOrgLoading(true);
+      setOrgError(false);
+      api.get<Organization>(`/organizations/public/${urlSlug}`)
+        .then((res) => setLocalOrg(res.data))
+        .catch(() => setOrgError(true))
+        .finally(() => setOrgLoading(false));
+    }
+  }, [urlSlug, contextSlug, contextOrg]);
+
+  const organization = contextOrg || localOrg;
+
   const [mode, setMode] = useState<'cpf' | 'matricula' | 'protocolo'>('cpf');
   const [cpf, setCpf] = useState('');
   const [matricula, setMatricula] = useState('');
@@ -55,13 +84,69 @@ export function PublicLookupPage() {
   const [error, setError] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
+  // ── Sem slug → tela de acesso inválido ──
+  if (!slug) {
+    return (
+      <div className="min-h-dvh bg-gradient-to-br from-surface-50 via-white to-surface-50/30 flex items-center justify-center p-4">
+        <div className="max-w-md w-full text-center">
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-danger-50">
+            <ShieldAlert className="h-10 w-10 text-danger-500" />
+          </div>
+          <h1 className="text-2xl font-bold text-surface-900 mb-2">Link de consulta inválido</h1>
+          <p className="text-surface-500 text-sm leading-relaxed mb-6">
+            Para consultar seus protocolos, acesse o link fornecido pela sua secretaria ou organização.
+            O link deve conter a identificação da organização.
+          </p>
+          <div className="rounded-xl bg-surface-50 border border-surface-200 p-4 text-left">
+            <p className="text-xs font-semibold text-surface-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              <Link2 className="h-3.5 w-3.5" />
+              Formato correto do link
+            </p>
+            <code className="text-sm text-primary-700 font-mono break-all">
+              {window.location.origin}/consulta?slug=<span className="text-primary-500">sua-organizacao</span>
+            </code>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Carregando dados da organização ──
+  if (orgLoading) {
+    return (
+      <div className="min-h-dvh bg-gradient-to-br from-primary-50 via-white to-primary-50/30 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="h-8 w-8 animate-spin text-primary-500" />
+          <span className="text-sm text-surface-500">Carregando...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Slug inválido (organização não encontrada) ──
+  if (orgError || (!organization && !orgLoading && !contextSlug)) {
+    return (
+      <div className="min-h-dvh bg-gradient-to-br from-surface-50 via-white to-surface-50/30 flex items-center justify-center p-4">
+        <div className="max-w-md w-full text-center">
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-warning-50">
+            <AlertTriangle className="h-10 w-10 text-warning-500" />
+          </div>
+          <h1 className="text-2xl font-bold text-surface-900 mb-2">Organização não encontrada</h1>
+          <p className="text-surface-500 text-sm leading-relaxed">
+            Não foi possível encontrar uma organização com o identificador <strong className="text-surface-700">"{slug}"</strong>.
+            Verifique se o link está correto ou entre em contato com sua secretaria.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   async function handleSearch(e: React.FormEvent) {
     e.preventDefault();
     setError('');
     setResults(null);
 
-    const params: Record<string, string> = {};
-    if (slug) params.slug = slug;
+    const params: Record<string, string> = { slug };
     if (mode === 'cpf') {
       const clean = cpf.replace(/\D/g, '');
       if (clean.length < 11) return setError('CPF deve ter 11 dígitos');
@@ -76,7 +161,7 @@ export function PublicLookupPage() {
 
     setLoading(true);
     try {
-      const res = await api.get<LookupResult[]>('/requests/public/lookup', { params });
+      const res = await api.post<LookupResult[]>('/requests/public/lookup', params);
       setResults(res.data);
       if (res.data.length === 0) setError('Nenhum protocolo encontrado com os dados informados.');
     } catch (err: any) {
@@ -104,7 +189,7 @@ export function PublicLookupPage() {
           </div>
           <div className="min-w-0">
             <h1 className="text-base sm:text-lg font-bold text-surface-900 truncate">
-              {organization?.name || 'Sistema de Protocolo'}
+              {organization?.name || 'Protocolla'}
             </h1>
             <p className="text-xs text-surface-500">Consulta de Protocolos</p>
           </div>
@@ -412,7 +497,7 @@ export function PublicLookupPage() {
       {/* Footer */}
       <footer className="border-t border-surface-200/60 bg-white/60 backdrop-blur-sm py-4 sm:py-6">
         <p className="text-center text-xs text-surface-400 px-4">
-          {organization?.name || 'Sistema de Protocolo'} &copy; {new Date().getFullYear()}
+          {organization?.name || 'Protocolla'} &copy; {new Date().getFullYear()}
         </p>
       </footer>
     </div>

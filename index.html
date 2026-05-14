@@ -5,6 +5,18 @@
     <link rel="icon" type="image/svg+xml" href="/brand/icon-azul.svg" />
     <link rel="apple-touch-icon" href="/brand/icon-azul.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'self';
+      script-src 'self';
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+      font-src 'self' https://fonts.gstatic.com;
+      img-src 'self' data: blob: https://*.supabase.co;
+      connect-src 'self' http://localhost:* https://*.supabase.co https://*.up.railway.app;
+      frame-src blob:;
+      object-src 'none';
+      base-uri 'self';
+      form-action 'self';
+    " />
     <title>Protocolla - Gestão de Protocolos</title>
     <meta name="description" content="Sistema de gestão de protocolos e tramitação documental para organizações públicas e privadas." />
 

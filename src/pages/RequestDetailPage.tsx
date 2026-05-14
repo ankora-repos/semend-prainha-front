@@ -743,7 +743,7 @@ export function RequestDetailPage() {
               {previewMime.startsWith('image/') ? (
                 <img src={previewUrl} alt={previewName} className="max-w-full max-h-[50vh] sm:max-h-[65vh] rounded-lg object-contain shadow-md" />
               ) : previewMime === 'application/pdf' ? (
-                <iframe src={previewUrl} title={previewName} className="w-full h-[50vh] sm:h-[65vh] rounded-lg border border-surface-200" />
+                <iframe src={previewUrl} title={previewName} sandbox="allow-same-origin" className="w-full h-[50vh] sm:h-[65vh] rounded-lg border border-surface-200" />
               ) : (
                 <div className="text-center py-12">
                   <FileTextIcon className="h-12 w-12 text-surface-300 mx-auto mb-3" />
