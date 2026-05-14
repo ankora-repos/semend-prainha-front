@@ -101,8 +101,21 @@ export function RequestDetailPage() {
     const file = e.target.files?.[0];
     if (!file) return;
     e.target.value = ''; // reset so same file can be selected again
-    const MAX_SIZE = 5 * 1024 * 1024;
-    if (file.size > MAX_SIZE) { toast.error('Arquivo muito grande. Máximo: 5 MB.'); return; }
+
+    const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+    const ALLOWED_TYPES = new Set([
+      'application/pdf',
+      'image/jpeg', 'image/png', 'image/webp',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    ]);
+    const BLOCKED_EXT = /\.(exe|bat|cmd|com|msi|scr|js|vbs|sh|php|py|rb|ps1|hta|dll|svg|html|htm)$/i;
+
+    if (BLOCKED_EXT.test(file.name)) { toast.error('Este tipo de arquivo não é permitido por segurança.'); return; }
+    if (!ALLOWED_TYPES.has(file.type)) { toast.error('Tipo não aceito. Use: PDF, JPG, PNG, WebP, DOC, DOCX, XLS, XLSX.'); return; }
+    if (file.size > MAX_SIZE) { toast.error('Arquivo muito grande. Máximo: 10 MB.'); return; }
     // Remove extension for the editable name
     const nameWithoutExt = file.name.replace(/\.[^/.]+$/, '');
     setUploadFilename(nameWithoutExt);
@@ -258,7 +271,7 @@ export function RequestDetailPage() {
             {user.role.permissions.send && (
               <label className="inline-flex items-center gap-2 rounded-xl border border-surface-200/80 bg-white px-4 py-2 text-sm font-bold text-surface-700 shadow-sm hover:bg-surface-50 hover:border-surface-300 transition-all cursor-pointer">
                 <FileUp className="h-4 w-4" /> Anexar
-                <input type="file" className="hidden" onChange={handleFileSelect} accept=".pdf,.jpg,.jpeg,.png" />
+                <input type="file" className="hidden" onChange={handleFileSelect} accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx" />
               </label>
             )}
           </div>
@@ -578,7 +591,7 @@ export function RequestDetailPage() {
               {user && user.role.permissions.send && !isTerminal && (
                 <label className="mt-2 flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-surface-200 p-3 text-sm font-bold text-surface-500 hover:border-primary-300 hover:text-primary-600 hover:bg-primary-50/30 transition-all cursor-pointer">
                   <FileUp className="h-4 w-4" /> Adicionar anexo
-                  <input type="file" className="hidden" onChange={handleFileSelect} accept=".pdf,.jpg,.jpeg,.png" />
+                  <input type="file" className="hidden" onChange={handleFileSelect} accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx" />
                 </label>
               )}
             </div>
