@@ -62,6 +62,7 @@ export function RequestDetailPage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewMime, setPreviewMime] = useState<string>('');
   const [previewName, setPreviewName] = useState<string>('');
+  const [previewLoading, setPreviewLoading] = useState(false);
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
   const [printingReceipt, setPrintingReceipt] = useState(false);
@@ -163,19 +164,26 @@ export function RequestDetailPage() {
   }
 
   async function handlePreview(attachmentId: string, filename: string, mimeType: string) {
+    setPreviewLoading(true);
+    setPreviewMime(mimeType);
+    setPreviewName(filename);
     try {
       const url = await attachmentsApi.getPreviewUrl(attachmentId);
       setPreviewUrl(url);
-      setPreviewMime(mimeType);
-      setPreviewName(filename);
     } catch (err) {
+      setPreviewName('');
+      setPreviewMime('');
       toast.error(extractErrorMessage(err));
+    } finally {
+      setPreviewLoading(false);
     }
   }
 
   function closePreview() {
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     setPreviewUrl(null);
+    setPreviewMime('');
+    setPreviewName('');
   }
 
   async function handleRename(attachmentId: string) {
@@ -762,8 +770,22 @@ export function RequestDetailPage() {
         </Modal>
       )}
 
+      {/* Preview Loading Overlay */}
+      {previewLoading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center animate-in fade-in duration-200">
+          <div className="fixed inset-0 bg-surface-900/60 backdrop-blur-sm" />
+          <div className="relative flex flex-col items-center gap-4 bg-white rounded-2xl p-8 shadow-2xl animate-in zoom-in-95 duration-200">
+            <Loader2 className="h-10 w-10 animate-spin text-primary-500" />
+            <div className="text-center">
+              <p className="text-sm font-bold text-surface-900">Carregando arquivo...</p>
+              <p className="text-xs text-surface-500 mt-1">{previewName}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Preview Modal */}
-      {previewUrl && (
+      {previewUrl && !previewLoading && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200">
           <div className="fixed inset-0 bg-surface-900/60 backdrop-blur-sm" onClick={closePreview} />
           <div className="relative w-full max-w-3xl max-h-[90vh] rounded-2xl bg-white shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col overflow-hidden">
@@ -777,10 +799,9 @@ export function RequestDetailPage() {
               <div className="flex items-center gap-2">
                 <a
                   href={previewUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  download={previewName}
                   className="rounded-lg p-2 text-surface-500 hover:bg-surface-100 hover:text-surface-700 transition-colors"
-                  title="Abrir em nova aba"
+                  title="Baixar arquivo"
                 >
                   <Download className="h-4 w-4" />
                 </a>
@@ -796,21 +817,17 @@ export function RequestDetailPage() {
               {previewMime.startsWith('image/') ? (
                 <img src={previewUrl} alt={previewName} className="max-w-full max-h-[50vh] sm:max-h-[65vh] rounded-lg object-contain shadow-md" />
               ) : previewMime === 'application/pdf' ? (
-                <object data={previewUrl} type="application/pdf" className="w-full h-[50vh] sm:h-[65vh] rounded-lg border border-surface-200">
-                  <div className="flex flex-col items-center justify-center h-full gap-3 py-12">
-                    <FileTextIcon className="h-12 w-12 text-surface-300" />
-                    <p className="text-sm text-surface-500">Não foi possível exibir o PDF no navegador.</p>
-                    <a href={previewUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700 transition-colors">
-                      <Download className="h-4 w-4" /> Abrir PDF
-                    </a>
-                  </div>
-                </object>
+                <iframe
+                  src={previewUrl}
+                  title={previewName}
+                  className="w-full h-[50vh] sm:h-[65vh] rounded-lg border border-surface-200"
+                />
               ) : (
                 <div className="text-center py-12">
                   <FileTextIcon className="h-12 w-12 text-surface-300 mx-auto mb-3" />
                   <p className="text-sm text-surface-500">Pré-visualização não disponível para este tipo de arquivo.</p>
-                  <a href={previewUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-primary-600 font-bold hover:underline mt-2 inline-block">
-                    Abrir em nova aba
+                  <a href={previewUrl} download={previewName} className="inline-flex items-center gap-2 mt-3 rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700 transition-colors">
+                    <Download className="h-4 w-4" /> Baixar arquivo
                   </a>
                 </div>
               )}

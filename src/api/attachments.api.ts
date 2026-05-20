@@ -1,4 +1,6 @@
-import { api } from './client';
+import { api, getAccessToken } from './client';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 export const attachmentsApi = {
   async upload(requestId: string, file: File, customFilename?: string) {
@@ -34,14 +36,23 @@ export const attachmentsApi = {
     return res.data.url;
   },
 
-  /** Fetches the file as a blob and returns a local object URL for preview */
+  /**
+   * Returns a blob URL for inline preview via backend proxy.
+   * The backend streams the file from Supabase, bypassing CORS/X-Frame-Options.
+   */
   async getPreviewUrl(attachmentId: string): Promise<string> {
-    const res = await api.get<{ url: string }>(`/attachments/${attachmentId}/url`);
-    const signedUrl = res.data.url;
-    // Fetch the actual file as blob to bypass Supabase X-Frame-Options / CSP headers
-    const fileRes = await fetch(signedUrl);
-    if (!fileRes.ok) throw new Error('Falha ao carregar arquivo');
-    const blob = await fileRes.blob();
-    return URL.createObjectURL(blob);
+    const res = await api.get(`/attachments/${attachmentId}/file`, {
+      responseType: 'blob',
+    });
+    return URL.createObjectURL(res.data);
+  },
+
+  /**
+   * Builds a direct URL to the backend file proxy endpoint (with auth token).
+   * Useful for <object>/<iframe> src where we need a plain URL, not a fetch call.
+   */
+  getFileProxyUrl(attachmentId: string): string {
+    const token = getAccessToken();
+    return `${API_URL}/attachments/${attachmentId}/file?token=${encodeURIComponent(token ?? '')}`;
   },
 };
