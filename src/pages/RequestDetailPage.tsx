@@ -791,7 +791,15 @@ export function RequestDetailPage() {
               {previewMime.startsWith('image/') ? (
                 <img src={previewUrl} alt={previewName} className="max-w-full max-h-[50vh] sm:max-h-[65vh] rounded-lg object-contain shadow-md" />
               ) : previewMime === 'application/pdf' ? (
-                <iframe src={previewUrl} title={previewName} sandbox="allow-same-origin" className="w-full h-[50vh] sm:h-[65vh] rounded-lg border border-surface-200" />
+                <object data={previewUrl} type="application/pdf" className="w-full h-[50vh] sm:h-[65vh] rounded-lg border border-surface-200">
+                  <div className="flex flex-col items-center justify-center h-full gap-3 py-12">
+                    <FileTextIcon className="h-12 w-12 text-surface-300" />
+                    <p className="text-sm text-surface-500">Não foi possível exibir o PDF no navegador.</p>
+                    <a href={previewUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700 transition-colors">
+                      <Download className="h-4 w-4" /> Abrir PDF
+                    </a>
+                  </div>
+                </object>
               ) : (
                 <div className="text-center py-12">
                   <FileTextIcon className="h-12 w-12 text-surface-300 mx-auto mb-3" />
