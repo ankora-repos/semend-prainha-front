@@ -34,8 +34,14 @@ export const attachmentsApi = {
     return res.data.url;
   },
 
+  /** Fetches the file as a blob and returns a local object URL for preview */
   async getPreviewUrl(attachmentId: string): Promise<string> {
     const res = await api.get<{ url: string }>(`/attachments/${attachmentId}/url`);
-    return res.data.url;
+    const signedUrl = res.data.url;
+    // Fetch the actual file as blob to bypass Supabase X-Frame-Options / CSP headers
+    const fileRes = await fetch(signedUrl);
+    if (!fileRes.ok) throw new Error('Falha ao carregar arquivo');
+    const blob = await fileRes.blob();
+    return URL.createObjectURL(blob);
   },
 };

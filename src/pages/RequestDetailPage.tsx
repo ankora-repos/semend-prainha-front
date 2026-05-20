@@ -173,6 +173,11 @@ export function RequestDetailPage() {
     }
   }
 
+  function closePreview() {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setPreviewUrl(null);
+  }
+
   async function handleRename(attachmentId: string) {
     if (!renameValue.trim()) return;
     try {
@@ -760,7 +765,7 @@ export function RequestDetailPage() {
       {/* Preview Modal */}
       {previewUrl && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200">
-          <div className="fixed inset-0 bg-surface-900/60 backdrop-blur-sm" onClick={() => setPreviewUrl(null)} />
+          <div className="fixed inset-0 bg-surface-900/60 backdrop-blur-sm" onClick={closePreview} />
           <div className="relative w-full max-w-3xl max-h-[90vh] rounded-2xl bg-white shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col overflow-hidden">
             <div className="flex items-center justify-between px-6 py-4 border-b border-surface-100 shrink-0">
               <div className="flex items-center gap-3 min-w-0">
@@ -780,7 +785,7 @@ export function RequestDetailPage() {
                   <Download className="h-4 w-4" />
                 </a>
                 <button
-                  onClick={() => setPreviewUrl(null)}
+                  onClick={closePreview}
                   className="rounded-full p-2 text-surface-400 hover:bg-surface-100 hover:text-surface-700 transition-colors"
                 >
                   <X className="h-5 w-5" />
