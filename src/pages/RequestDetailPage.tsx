@@ -6,6 +6,7 @@ import { tramitationsApi } from '@/api/tramitations.api';
 import { attachmentsApi } from '@/api/attachments.api';
 import { auditLogsApi } from '@/api/audit-logs.api';
 import type { ProtocolActivity } from '@/api/audit-logs.api';
+import { reportsApi, triggerPdfDownload } from '@/api/reports.api';
 import { sectorsApi } from '@/api/sectors.api';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
@@ -15,7 +16,7 @@ import { extractErrorMessage } from '@/lib/errors';
 import { toast } from 'sonner';
 import type { RequestStatus, ChangeStatusDto } from '@/types/request.types';
 import {
-  ArrowLeft, Loader2, Send, CheckCircle, FileUp, Paperclip, Download,
+  ArrowLeft, Loader2, Send, CheckCircle, FileUp, Paperclip, Download, Printer,
   Clock, AlertTriangle, Building2, User, ChevronDown, X, MessageSquare, ArrowRight,
   Pencil, Eye, FileText as FileTextIcon, Image as ImageIcon, Activity,
 } from 'lucide-react';
@@ -63,6 +64,20 @@ export function RequestDetailPage() {
   const [previewName, setPreviewName] = useState<string>('');
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
+  const [printingReceipt, setPrintingReceipt] = useState(false);
+
+  async function handlePrintReceipt() {
+    if (!id || !request) return;
+    setPrintingReceipt(true);
+    try {
+      const blob = await reportsApi.downloadReceipt(id);
+      triggerPdfDownload(blob, `comprovante-${request.protocolNumber}.pdf`);
+    } catch (err) {
+      toast.error('Erro ao gerar comprovante: ' + extractErrorMessage(err));
+    } finally {
+      setPrintingReceipt(false);
+    }
+  }
 
   const forwardMutation = useMutation({
     mutationFn: () => tramitationsApi.forward(id!, { toSectorCode: forwardCode, notes: forwardNotes || undefined }),
@@ -240,42 +255,52 @@ export function RequestDetailPage() {
         </div>
 
         {/* Actions Desktop */}
-        {!isTerminal && user && (
-          <div className="hidden sm:flex flex-wrap items-center gap-2 justify-end">
-            {canForward(user, request) && nextSectorCode && (
-              <button
-                onClick={() => { setForwardCode(nextSectorCode); setShowForward(true); }}
-                className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-4 py-2 text-sm font-bold text-white shadow-sm hover:shadow-md hover:bg-primary-700 hover:-translate-y-0.5 transition-all"
-              >
-                <Send className="h-4 w-4" /> Tramitar → {nextSectorCode}
-              </button>
-            )}
-            {canReceive(user, request) && request.status === 'PROTOCOLADO' && (
-              <button
-                onClick={() => receiveMutation.mutate()}
-                disabled={receiveMutation.isPending}
-                className="inline-flex items-center gap-2 rounded-xl border border-success-200/60 bg-success-50 px-4 py-2 text-sm font-bold text-success-700 shadow-sm hover:bg-success-100 hover:-translate-y-0.5 transition-all disabled:opacity-60"
-              >
-                {receiveMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
-                Confirmar Recebimento
-              </button>
-            )}
-            {canChangeStatus(user) && (
-              <button
-                onClick={() => setShowStatus(true)}
-                className="inline-flex items-center gap-2 rounded-xl border border-surface-200/80 bg-white px-4 py-2 text-sm font-bold text-surface-700 shadow-sm hover:bg-surface-50 hover:border-surface-300 transition-all"
-              >
-                <ChevronDown className="h-4 w-4" /> Status
-              </button>
-            )}
-            {user.role.permissions.send && (
-              <label className="inline-flex items-center gap-2 rounded-xl border border-surface-200/80 bg-white px-4 py-2 text-sm font-bold text-surface-700 shadow-sm hover:bg-surface-50 hover:border-surface-300 transition-all cursor-pointer">
-                <FileUp className="h-4 w-4" /> Anexar
-                <input type="file" className="hidden" onChange={handleFileSelect} accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx" />
-              </label>
-            )}
-          </div>
-        )}
+        <div className="hidden sm:flex flex-wrap items-center gap-2 justify-end">
+          {!isTerminal && user && (
+            <>
+              {canForward(user, request) && nextSectorCode && (
+                <button
+                  onClick={() => { setForwardCode(nextSectorCode); setShowForward(true); }}
+                  className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-4 py-2 text-sm font-bold text-white shadow-sm hover:shadow-md hover:bg-primary-700 hover:-translate-y-0.5 transition-all"
+                >
+                  <Send className="h-4 w-4" /> Tramitar → {nextSectorCode}
+                </button>
+              )}
+              {canReceive(user, request) && request.status === 'PROTOCOLADO' && (
+                <button
+                  onClick={() => receiveMutation.mutate()}
+                  disabled={receiveMutation.isPending}
+                  className="inline-flex items-center gap-2 rounded-xl border border-success-200/60 bg-success-50 px-4 py-2 text-sm font-bold text-success-700 shadow-sm hover:bg-success-100 hover:-translate-y-0.5 transition-all disabled:opacity-60"
+                >
+                  {receiveMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
+                  Confirmar Recebimento
+                </button>
+              )}
+              {canChangeStatus(user) && (
+                <button
+                  onClick={() => setShowStatus(true)}
+                  className="inline-flex items-center gap-2 rounded-xl border border-surface-200/80 bg-white px-4 py-2 text-sm font-bold text-surface-700 shadow-sm hover:bg-surface-50 hover:border-surface-300 transition-all"
+                >
+                  <ChevronDown className="h-4 w-4" /> Status
+                </button>
+              )}
+              {user.role.permissions.send && (
+                <label className="inline-flex items-center gap-2 rounded-xl border border-surface-200/80 bg-white px-4 py-2 text-sm font-bold text-surface-700 shadow-sm hover:bg-surface-50 hover:border-surface-300 transition-all cursor-pointer">
+                  <FileUp className="h-4 w-4" /> Anexar
+                  <input type="file" className="hidden" onChange={handleFileSelect} accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx" />
+                </label>
+              )}
+            </>
+          )}
+          <button
+            onClick={handlePrintReceipt}
+            disabled={printingReceipt}
+            className="inline-flex items-center gap-2 rounded-xl border border-surface-200/80 bg-white px-4 py-2 text-sm font-bold text-surface-700 shadow-sm hover:bg-surface-50 hover:border-surface-300 transition-all disabled:opacity-60"
+          >
+            {printingReceipt ? <Loader2 className="h-4 w-4 animate-spin" /> : <Printer className="h-4 w-4" />}
+            Imprimir
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -283,38 +308,48 @@ export function RequestDetailPage() {
         <div className="lg:col-span-2 space-y-6">
           
           {/* Actions Mobile */}
-          {!isTerminal && user && (
-            <div className="flex sm:hidden flex-wrap gap-2">
-              {canForward(user, request) && nextSectorCode && (
-                <button
-                  onClick={() => { setForwardCode(nextSectorCode); setShowForward(true); }}
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-primary-700 active:scale-[0.98] transition-all"
-                >
-                  <Send className="h-4 w-4" /> Enviar para {nextSectorCode}
-                </button>
-              )}
-              <div className="grid grid-cols-2 gap-2 w-full">
-                {canReceive(user, request) && request.status === 'PROTOCOLADO' && (
+          <div className="flex sm:hidden flex-wrap gap-2">
+            {!isTerminal && user && (
+              <>
+                {canForward(user, request) && nextSectorCode && (
                   <button
-                    onClick={() => receiveMutation.mutate()}
-                    disabled={receiveMutation.isPending}
-                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-success-200/60 bg-success-50 px-4 py-2.5 text-xs font-bold text-success-700 shadow-sm active:scale-[0.98] transition-all"
+                    onClick={() => { setForwardCode(nextSectorCode); setShowForward(true); }}
+                    className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-primary-700 active:scale-[0.98] transition-all"
                   >
-                    {receiveMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
-                    Receber
+                    <Send className="h-4 w-4" /> Enviar para {nextSectorCode}
                   </button>
                 )}
-                {canChangeStatus(user) && (
-                  <button
-                    onClick={() => setShowStatus(true)}
-                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-surface-200 bg-white px-4 py-2.5 text-xs font-bold text-surface-700 shadow-sm active:scale-[0.98] transition-all"
-                  >
-                    <ChevronDown className="h-4 w-4" /> Alterar Status
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
+                <div className="grid grid-cols-2 gap-2 w-full">
+                  {canReceive(user, request) && request.status === 'PROTOCOLADO' && (
+                    <button
+                      onClick={() => receiveMutation.mutate()}
+                      disabled={receiveMutation.isPending}
+                      className="inline-flex items-center justify-center gap-2 rounded-xl border border-success-200/60 bg-success-50 px-4 py-2.5 text-xs font-bold text-success-700 shadow-sm active:scale-[0.98] transition-all"
+                    >
+                      {receiveMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
+                      Receber
+                    </button>
+                  )}
+                  {canChangeStatus(user) && (
+                    <button
+                      onClick={() => setShowStatus(true)}
+                      className="inline-flex items-center justify-center gap-2 rounded-xl border border-surface-200 bg-white px-4 py-2.5 text-xs font-bold text-surface-700 shadow-sm active:scale-[0.98] transition-all"
+                    >
+                      <ChevronDown className="h-4 w-4" /> Alterar Status
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
+            <button
+              onClick={handlePrintReceipt}
+              disabled={printingReceipt}
+              className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-surface-200 bg-white px-4 py-2.5 text-sm font-bold text-surface-700 shadow-sm active:scale-[0.98] transition-all disabled:opacity-60"
+            >
+              {printingReceipt ? <Loader2 className="h-4 w-4 animate-spin" /> : <Printer className="h-4 w-4" />}
+              Imprimir Comprovante
+            </button>
+          </div>
 
           {/* Description */}
           <div className="rounded-2xl border border-surface-200/60 bg-white shadow-sm overflow-hidden flex flex-col">

@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { requestsApi } from '@/api/requests.api';
 import { requestTypesApi } from '@/api/request-types.api';
+import { reportsApi, triggerPdfDownload } from '@/api/reports.api';
 import { extractErrorMessage } from '@/lib/errors';
 import { toast } from 'sonner';
-import { Loader2, ArrowLeft, FileText } from 'lucide-react';
-import type { CreateRequestDto } from '@/types/request.types';
+import { Loader2, ArrowLeft, FileText, Printer, CheckCircle2, ArrowRight } from 'lucide-react';
+import type { CreateRequestDto, ProtocolRequest } from '@/types/request.types';
 
 export function NewRequestPage() {
   const navigate = useNavigate();
@@ -18,6 +19,8 @@ export function NewRequestPage() {
   const [requesterCpf, setRequesterCpf] = useState('');
   const [requesterRg, setRequesterRg] = useState('');
   const [requesterBirthDate, setRequesterBirthDate] = useState('');
+  const [createdRequest, setCreatedRequest] = useState<ProtocolRequest | null>(null);
+  const [printing, setPrinting] = useState(false);
 
   const { data: requestTypes, isLoading: loadingTypes } = useQuery({
     queryKey: ['request-types'],
@@ -31,13 +34,25 @@ export function NewRequestPage() {
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ['requests'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
-      toast.success(`Protocolo ${result.protocolNumber} criado com sucesso!`);
-      navigate(`/protocolos/${result.id}`);
+      setCreatedRequest(result);
     },
     onError: (err) => {
       toast.error(extractErrorMessage(err));
     },
   });
+
+  async function handlePrintReceipt() {
+    if (!createdRequest) return;
+    setPrinting(true);
+    try {
+      const blob = await reportsApi.downloadReceipt(createdRequest.id);
+      triggerPdfDownload(blob, `comprovante-${createdRequest.protocolNumber}.pdf`);
+    } catch (err) {
+      toast.error('Erro ao gerar comprovante: ' + extractErrorMessage(err));
+    } finally {
+      setPrinting(false);
+    }
+  }
 
   function formatCpf(value: string) {
     const digits = value.replace(/\D/g, '').slice(0, 11);
@@ -84,6 +99,83 @@ export function NewRequestPage() {
     if (requesterRg.trim()) data.requesterRg = requesterRg.trim();
     if (requesterBirthDate) data.requesterBirthDate = requesterBirthDate;
     createMutation.mutate(data);
+  }
+
+  // ── Success Screen ──────────────────────────────────
+  if (createdRequest) {
+    return (
+      <div className="max-w-lg mx-auto mt-8 sm:mt-16 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="rounded-2xl border border-surface-200/60 bg-white p-8 sm:p-10 shadow-xs text-center space-y-6">
+          <div className="flex justify-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-50 ring-4 ring-green-100">
+              <CheckCircle2 className="h-8 w-8 text-green-600" />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold text-surface-900">Protocolo Criado!</h1>
+            <p className="text-surface-500 text-sm">
+              O protocolo foi registrado com sucesso no sistema.
+            </p>
+          </div>
+
+          <div className="rounded-xl bg-surface-50 border border-surface-100 p-5 space-y-3">
+            <div>
+              <p className="text-xs font-medium text-surface-400 uppercase tracking-wider">Número do Protocolo</p>
+              <p className="text-xl font-bold text-surface-900 mt-1 font-mono tracking-tight">
+                {createdRequest.protocolNumber}
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3 text-left">
+              <div>
+                <p className="text-xs text-surface-400">Tipo</p>
+                <p className="text-sm font-medium text-surface-700">{createdRequest.requestType?.name}</p>
+              </div>
+              <div>
+                <p className="text-xs text-surface-400">Setor Atual</p>
+                <p className="text-sm font-medium text-surface-700">{createdRequest.currentSector?.name}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-stretch gap-3 pt-2">
+            <button
+              onClick={handlePrintReceipt}
+              disabled={printing}
+              className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 px-5 py-3 text-sm font-semibold text-white hover:bg-primary-700 disabled:opacity-60 disabled:cursor-not-allowed transition-all shadow-sm"
+            >
+              {printing ? (
+                <><Loader2 className="h-4 w-4 animate-spin" /> Gerando PDF...</>
+              ) : (
+                <><Printer className="h-4 w-4" /> Imprimir Comprovante</>
+              )}
+            </button>
+            <button
+              onClick={() => navigate(`/protocolos/${createdRequest.id}`)}
+              className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl border border-surface-200 bg-white px-5 py-3 text-sm font-semibold text-surface-700 hover:bg-surface-50 transition-all"
+            >
+              Ver Protocolo <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
+
+          <button
+            onClick={() => {
+              setCreatedRequest(null);
+              setRequestTypeId('');
+              setDescription('');
+              setRegistrationNumber('');
+              setRequesterName('');
+              setRequesterCpf('');
+              setRequesterRg('');
+              setRequesterBirthDate('');
+            }}
+            className="text-sm text-primary-600 hover:text-primary-700 font-medium transition-colors"
+          >
+            Criar outro protocolo
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (

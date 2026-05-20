@@ -14,6 +14,13 @@ export const reportsApi = {
     });
     return res.data;
   },
+
+  async downloadReceipt(requestId: string): Promise<Blob> {
+    const res = await api.get(`/reports/requests/${requestId}/receipt`, {
+      responseType: 'blob',
+    });
+    return res.data;
+  },
 };
 
 export function triggerPdfDownload(blob: Blob, filename = 'protocolos.pdf') {
