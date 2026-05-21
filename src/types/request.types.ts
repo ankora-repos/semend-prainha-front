@@ -22,6 +22,7 @@ export interface ProtocolRequest {
   isOverdue: boolean;
   requesterName?: string | null;
   requesterCpf?: string | null;
+  requesterCnpj?: string | null;
   requesterRg?: string | null;
   requesterBirthDate?: string | null;
   requester: { id: string; name: string; registrationNumber: string };
@@ -78,6 +79,7 @@ export interface CreateRequestDto {
   registrationNumber?: string;
   requesterName?: string;
   requesterCpf?: string;
+  requesterCnpj?: string;
   requesterRg?: string;
   requesterBirthDate?: string;
 }

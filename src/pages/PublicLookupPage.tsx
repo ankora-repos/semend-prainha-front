@@ -36,6 +36,22 @@ function formatCpfInput(value: string) {
     .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
 }
 
+function formatCnpjInput(value: string) {
+  const digits = value.replace(/\D/g, '').slice(0, 14);
+  return digits
+    .replace(/(\d{2})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d)/, '$1/$2')
+    .replace(/(\d{4})(\d{1,2})$/, '$1-$2');
+}
+
+/** Auto-format as CPF (11 digits) or CNPJ (12+ digits) */
+function formatCpfCnpjInput(value: string) {
+  const digits = value.replace(/\D/g, '');
+  if (digits.length <= 11) return formatCpfInput(value);
+  return formatCnpjInput(value);
+}
+
 const STATUS_LABELS: Record<string, string> = {
   PROTOCOLADO: 'Protocolado',
   RECEBIDO_PELO_SETOR: 'Recebido pelo Setor',
@@ -75,8 +91,8 @@ export function PublicLookupPage() {
 
   const organization = contextOrg || localOrg;
 
-  const [mode, setMode] = useState<'cpf' | 'matricula' | 'protocolo'>('cpf');
-  const [cpf, setCpf] = useState('');
+  const [mode, setMode] = useState<'cpf_cnpj' | 'matricula' | 'protocolo'>('cpf_cnpj');
+  const [cpfCnpj, setCpfCnpj] = useState('');
   const [matricula, setMatricula] = useState('');
   const [protocolo, setProtocolo] = useState('');
   const [results, setResults] = useState<LookupResult[] | null>(null);
@@ -147,10 +163,15 @@ export function PublicLookupPage() {
     setResults(null);
 
     const params: Record<string, string> = { slug };
-    if (mode === 'cpf') {
-      const clean = cpf.replace(/\D/g, '');
-      if (clean.length < 11) return setError('CPF deve ter 11 dígitos');
-      params.cpf = clean;
+    if (mode === 'cpf_cnpj') {
+      const clean = cpfCnpj.replace(/\D/g, '');
+      if (clean.length <= 11) {
+        if (clean.length < 11) return setError('CPF deve ter 11 dígitos');
+        params.cpf = clean;
+      } else {
+        if (clean.length < 14) return setError('CNPJ deve ter 14 dígitos');
+        params.cnpj = clean;
+      }
     } else if (mode === 'matricula') {
       if (!matricula.trim()) return setError('Informe a matrícula');
       params.registrationNumber = matricula.trim();
@@ -212,7 +233,7 @@ export function PublicLookupPage() {
           {/* Mode tabs */}
           <div className="flex rounded-xl bg-surface-100 p-1 mb-4 sm:mb-6">
             {([
-              { key: 'cpf' as const, label: 'CPF' },
+              { key: 'cpf_cnpj' as const, label: 'CPF / CNPJ' },
               { key: 'matricula' as const, label: 'Matrícula' },
               { key: 'protocolo' as const, label: 'N. Protocolo' },
             ]).map(({ key, label }) => (
@@ -234,13 +255,13 @@ export function PublicLookupPage() {
 
           {/* Input + Button — stack on mobile, row on sm+ */}
           <div className="flex flex-col sm:flex-row gap-3">
-            {mode === 'cpf' && (
+            {mode === 'cpf_cnpj' && (
               <input
                 type="text"
-                value={cpf}
-                onChange={(e) => setCpf(formatCpfInput(e.target.value))}
-                placeholder="000.000.000-00"
-                maxLength={14}
+                value={cpfCnpj}
+                onChange={(e) => setCpfCnpj(formatCpfCnpjInput(e.target.value))}
+                placeholder="CPF ou CNPJ"
+                maxLength={18}
                 className="w-full sm:flex-1 rounded-xl border border-surface-200 bg-surface-50 px-4 py-3 text-sm font-medium text-surface-900 outline-none focus:bg-white focus:border-primary-400 focus:ring-4 focus:ring-primary-100 transition-all placeholder:text-surface-400"
               />
             )}
@@ -488,7 +509,7 @@ export function PublicLookupPage() {
               <Search className="h-8 w-8 sm:h-10 sm:w-10 text-primary-300" />
             </div>
             <p className="text-surface-500 text-xs sm:text-sm max-w-xs mx-auto">
-              Digite seu CPF, matrícula ou número do protocolo para consultar o andamento
+              Digite seu CPF, CNPJ, matrícula ou número do protocolo para consultar o andamento
             </p>
           </div>
         )}

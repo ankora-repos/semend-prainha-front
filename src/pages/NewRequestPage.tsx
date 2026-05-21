@@ -6,8 +6,10 @@ import { requestTypesApi } from '@/api/request-types.api';
 import { reportsApi, triggerPdfDownload } from '@/api/reports.api';
 import { extractErrorMessage } from '@/lib/errors';
 import { toast } from 'sonner';
-import { Loader2, ArrowLeft, FileText, Printer, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Loader2, ArrowLeft, FileText, Printer, CheckCircle2, ArrowRight, User, Building2 } from 'lucide-react';
 import type { CreateRequestDto, ProtocolRequest } from '@/types/request.types';
+
+type PersonType = 'fisica' | 'juridica';
 
 export function NewRequestPage() {
   const navigate = useNavigate();
@@ -15,8 +17,10 @@ export function NewRequestPage() {
   const [requestTypeId, setRequestTypeId] = useState('');
   const [description, setDescription] = useState('');
   const [registrationNumber, setRegistrationNumber] = useState('');
+  const [personType, setPersonType] = useState<PersonType>('fisica');
   const [requesterName, setRequesterName] = useState('');
   const [requesterCpf, setRequesterCpf] = useState('');
+  const [requesterCnpj, setRequesterCnpj] = useState('');
   const [requesterRg, setRequesterRg] = useState('');
   const [requesterBirthDate, setRequesterBirthDate] = useState('');
   const [createdRequest, setCreatedRequest] = useState<ProtocolRequest | null>(null);
@@ -62,6 +66,15 @@ export function NewRequestPage() {
       .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
   }
 
+  function formatCnpj(value: string) {
+    const digits = value.replace(/\D/g, '').slice(0, 14);
+    return digits
+      .replace(/(\d{2})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1/$2')
+      .replace(/(\d{4})(\d{1,2})$/, '$1-$2');
+  }
+
   function formatRg(value: string) {
     const digits = value.replace(/\D/g, '').slice(0, 9);
     if (digits.length <= 2) return digits;
@@ -88,16 +101,44 @@ export function NewRequestPage() {
     ? 'RG deve ter entre 7 e 9 dígitos'
     : '';
 
+  const cnpjDigits = requesterCnpj.replace(/\D/g, '');
+  const cnpjError = cnpjDigits.length > 0 && cnpjDigits.length < 14
+    ? 'CNPJ deve ter 14 dígitos'
+    : '';
+
+  const cpfDigits = requesterCpf.replace(/\D/g, '');
+  const cpfError = cpfDigits.length > 0 && cpfDigits.length < 11
+    ? 'CPF deve ter 11 dígitos'
+    : '';
+
+  function handlePersonTypeChange(type: PersonType) {
+    setPersonType(type);
+    // Clear fields from the other type
+    if (type === 'fisica') {
+      setRequesterCnpj('');
+    } else {
+      setRequesterCpf('');
+      setRequesterRg('');
+      setRequesterBirthDate('');
+    }
+  }
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (birthDateError) return toast.error(birthDateError);
-    if (rgError) return toast.error(rgError);
+    if (personType === 'fisica' && birthDateError) return toast.error(birthDateError);
+    if (personType === 'fisica' && rgError) return toast.error(rgError);
+    if (personType === 'fisica' && cpfError) return toast.error(cpfError);
+    if (personType === 'juridica' && cnpjError) return toast.error(cnpjError);
     const data: CreateRequestDto = { requestTypeId, description };
     if (registrationNumber.trim()) data.registrationNumber = registrationNumber.trim();
     if (requesterName.trim()) data.requesterName = requesterName.trim();
-    if (requesterCpf.trim()) data.requesterCpf = requesterCpf.trim();
-    if (requesterRg.trim()) data.requesterRg = requesterRg.trim();
-    if (requesterBirthDate) data.requesterBirthDate = requesterBirthDate;
+    if (personType === 'fisica') {
+      if (requesterCpf.trim()) data.requesterCpf = requesterCpf.trim();
+      if (requesterRg.trim()) data.requesterRg = requesterRg.trim();
+      if (requesterBirthDate) data.requesterBirthDate = requesterBirthDate;
+    } else {
+      if (requesterCnpj.trim()) data.requesterCnpj = requesterCnpj.trim();
+    }
     createMutation.mutate(data);
   }
 
@@ -164,8 +205,10 @@ export function NewRequestPage() {
               setRequestTypeId('');
               setDescription('');
               setRegistrationNumber('');
+              setPersonType('fisica');
               setRequesterName('');
               setRequesterCpf('');
+              setRequesterCnpj('');
               setRequesterRg('');
               setRequesterBirthDate('');
             }}
@@ -251,52 +294,100 @@ export function NewRequestPage() {
 
         {/* Dados do Solicitante */}
         <div className="border-t border-surface-100 pt-5">
-          <h3 className="text-sm font-semibold text-surface-800 mb-4">Dados do Solicitante (pessoa física)</h3>
+          <h3 className="text-sm font-semibold text-surface-800 mb-4">Dados do Solicitante</h3>
+
+          {/* Person Type Toggle */}
+          <div className="flex rounded-lg bg-surface-100 p-1 mb-5">
+            <button
+              type="button"
+              onClick={() => handlePersonTypeChange('fisica')}
+              className={`flex-1 inline-flex items-center justify-center gap-2 rounded-md py-2.5 text-sm font-semibold transition-all ${
+                personType === 'fisica'
+                  ? 'bg-white text-primary-700 shadow-sm'
+                  : 'text-surface-500 hover:text-surface-700'
+              }`}
+            >
+              <User className="h-4 w-4" /> Pessoa Física
+            </button>
+            <button
+              type="button"
+              onClick={() => handlePersonTypeChange('juridica')}
+              className={`flex-1 inline-flex items-center justify-center gap-2 rounded-md py-2.5 text-sm font-semibold transition-all ${
+                personType === 'juridica'
+                  ? 'bg-white text-primary-700 shadow-sm'
+                  : 'text-surface-500 hover:text-surface-700'
+              }`}
+            >
+              <Building2 className="h-4 w-4" /> Pessoa Jurídica
+            </button>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1.5">Nome Completo</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1.5">
+                {personType === 'fisica' ? 'Nome Completo' : 'Razão Social'}
+              </label>
               <input
                 type="text"
                 value={requesterName}
                 onChange={(e) => setRequesterName(e.target.value)}
-                placeholder="Nome do solicitante"
+                placeholder={personType === 'fisica' ? 'Nome do solicitante' : 'Razão social da empresa'}
                 className="w-full rounded-lg border border-surface-200 bg-surface-50 px-4 py-2.5 text-sm text-surface-900 placeholder-surface-400 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1.5">CPF</label>
-              <input
-                type="text"
-                value={requesterCpf}
-                onChange={(e) => setRequesterCpf(formatCpf(e.target.value))}
-                placeholder="000.000.000-00"
-                maxLength={14}
-                className="w-full rounded-lg border border-surface-200 bg-surface-50 px-4 py-2.5 text-sm text-surface-900 placeholder-surface-400 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1.5">RG</label>
-              <input
-                type="text"
-                value={requesterRg}
-                onChange={(e) => setRequesterRg(formatRg(e.target.value))}
-                placeholder="00.000.000-0"
-                maxLength={12}
-                className={`w-full rounded-lg border bg-surface-50 px-4 py-2.5 text-sm text-surface-900 placeholder-surface-400 outline-none focus:ring-2 ${rgError ? 'border-danger-400 focus:border-danger-400 focus:ring-danger-100' : 'border-surface-200 focus:border-primary-400 focus:ring-primary-100'}`}
-              />
-              {rgError && <p className="text-xs text-danger-500 mt-1">{rgError}</p>}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1.5">Data de Nascimento</label>
-              <input
-                type="date"
-                value={requesterBirthDate}
-                onChange={(e) => setRequesterBirthDate(e.target.value)}
-                max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
-                className={`w-full rounded-lg border bg-surface-50 px-4 py-2.5 text-sm text-surface-900 placeholder-surface-400 outline-none focus:ring-2 ${birthDateError ? 'border-danger-400 focus:border-danger-400 focus:ring-danger-100' : 'border-surface-200 focus:border-primary-400 focus:ring-primary-100'}`}
-              />
-              {birthDateError && <p className="text-xs text-danger-500 mt-1">{birthDateError}</p>}
-            </div>
+
+            {personType === 'fisica' ? (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-surface-700 mb-1.5">CPF</label>
+                  <input
+                    type="text"
+                    value={requesterCpf}
+                    onChange={(e) => setRequesterCpf(formatCpf(e.target.value))}
+                    placeholder="000.000.000-00"
+                    maxLength={14}
+                    className={`w-full rounded-lg border bg-surface-50 px-4 py-2.5 text-sm text-surface-900 placeholder-surface-400 outline-none focus:ring-2 ${cpfError ? 'border-danger-400 focus:border-danger-400 focus:ring-danger-100' : 'border-surface-200 focus:border-primary-400 focus:ring-primary-100'}`}
+                  />
+                  {cpfError && <p className="text-xs text-danger-500 mt-1">{cpfError}</p>}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-surface-700 mb-1.5">RG</label>
+                  <input
+                    type="text"
+                    value={requesterRg}
+                    onChange={(e) => setRequesterRg(formatRg(e.target.value))}
+                    placeholder="00.000.000-0"
+                    maxLength={12}
+                    className={`w-full rounded-lg border bg-surface-50 px-4 py-2.5 text-sm text-surface-900 placeholder-surface-400 outline-none focus:ring-2 ${rgError ? 'border-danger-400 focus:border-danger-400 focus:ring-danger-100' : 'border-surface-200 focus:border-primary-400 focus:ring-primary-100'}`}
+                  />
+                  {rgError && <p className="text-xs text-danger-500 mt-1">{rgError}</p>}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-surface-700 mb-1.5">Data de Nascimento</label>
+                  <input
+                    type="date"
+                    value={requesterBirthDate}
+                    onChange={(e) => setRequesterBirthDate(e.target.value)}
+                    max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
+                    className={`w-full rounded-lg border bg-surface-50 px-4 py-2.5 text-sm text-surface-900 placeholder-surface-400 outline-none focus:ring-2 ${birthDateError ? 'border-danger-400 focus:border-danger-400 focus:ring-danger-100' : 'border-surface-200 focus:border-primary-400 focus:ring-primary-100'}`}
+                  />
+                  {birthDateError && <p className="text-xs text-danger-500 mt-1">{birthDateError}</p>}
+                </div>
+              </>
+            ) : (
+              <div>
+                <label className="block text-sm font-medium text-surface-700 mb-1.5">CNPJ</label>
+                <input
+                  type="text"
+                  value={requesterCnpj}
+                  onChange={(e) => setRequesterCnpj(formatCnpj(e.target.value))}
+                  placeholder="00.000.000/0000-00"
+                  maxLength={18}
+                  className={`w-full rounded-lg border bg-surface-50 px-4 py-2.5 text-sm text-surface-900 placeholder-surface-400 outline-none focus:ring-2 ${cnpjError ? 'border-danger-400 focus:border-danger-400 focus:ring-danger-100' : 'border-surface-200 focus:border-primary-400 focus:ring-primary-100'}`}
+                />
+                {cnpjError && <p className="text-xs text-danger-500 mt-1">{cnpjError}</p>}
+              </div>
+            )}
           </div>
         </div>
 
