@@ -3,12 +3,18 @@ import type { ProtocolRequest } from '@/types/request.types';
 
 export function canForward(user: AuthUser, request: ProtocolRequest): boolean {
   if (user.isSuperadmin) return true;
-  return user.role.permissions.send && user.sectorId === request.currentSectorId;
+  if (!user.role.permissions.send) return false;
+  // Admins (approve permission) can forward from any sector
+  if (user.role.permissions.approve) return true;
+  return user.sectorId === request.currentSectorId;
 }
 
 export function canReceive(user: AuthUser, request: ProtocolRequest): boolean {
   if (user.isSuperadmin) return true;
-  return user.role.permissions.receive && user.sectorId === request.currentSectorId;
+  if (!user.role.permissions.receive) return false;
+  // Admins (approve permission) can receive from any sector
+  if (user.role.permissions.approve) return true;
+  return user.sectorId === request.currentSectorId;
 }
 
 export function canChangeStatus(user: AuthUser): boolean {
