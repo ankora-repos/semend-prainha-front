@@ -18,6 +18,16 @@ const PERM_LABELS: Record<string, string> = {
   reject: 'Rejeitar',
 };
 
+const PERM_DESCRIPTIONS: Record<string, string> = {
+  view: 'Ver protocolos, usuários, setores e demais dados do sistema. Sem essa permissão o usuário não acessa nenhuma informação.',
+  edit: 'Criar, alterar e excluir usuários, setores, perfis e tipos de solicitação. Não controla a mudança de status de protocolos.',
+  send: 'Criar novos protocolos, encaminhar para o próximo setor do fluxo e anexar ou renomear arquivos.',
+  receive: 'Confirmar o recebimento de protocolos quando chegam ao setor do usuário.',
+  changeStatus: 'Mudar o status dos protocolos (em análise, pendente de documento, recebido, etc.) sem acesso às demais edições administrativas.',
+  approve: 'Deferir (aprovar) protocolos, marcando-os como concluídos com parecer favorável.',
+  reject: 'Indeferir (negar) protocolos. Exige justificativa obrigatória ao rejeitar.',
+};
+
 const PERM_KEYS = ['view', 'edit', 'send', 'receive', 'changeStatus', 'approve', 'reject'] as const;
 
 const INPUT_CLASS =
@@ -307,9 +317,12 @@ export function RolesPage() {
                   {PERM_KEYS.map((key) => (
                     <label
                       key={key}
-                      className="flex items-center justify-between rounded-xl border border-surface-200/80 bg-surface-50/50 px-3.5 py-2.5 cursor-pointer hover:border-surface-300 transition-all"
+                      className="flex items-start justify-between gap-3 rounded-xl border border-surface-200/80 bg-surface-50/50 px-3.5 py-3 cursor-pointer hover:border-surface-300 transition-all"
                     >
-                      <span className="text-sm font-medium text-surface-900">{PERM_LABELS[key]}</span>
+                      <div className="min-w-0">
+                        <span className="text-sm font-semibold text-surface-900">{PERM_LABELS[key]}</span>
+                        <p className="text-xs text-surface-500 mt-0.5 leading-snug">{PERM_DESCRIPTIONS[key]}</p>
+                      </div>
                       <button
                         type="button"
                         role="switch"
@@ -321,7 +334,7 @@ export function RolesPage() {
                           })
                         }
                         className={cn(
-                          'relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors',
+                          'relative mt-0.5 inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors',
                           createForm.permissions[key] ? 'bg-primary-600' : 'bg-surface-300',
                         )}
                       >
@@ -410,9 +423,12 @@ export function RolesPage() {
                   {PERM_KEYS.map((key) => (
                     <label
                       key={key}
-                      className="flex items-center justify-between rounded-xl border border-surface-200/80 bg-surface-50/50 px-3.5 py-2.5 cursor-pointer hover:border-surface-300 transition-all"
+                      className="flex items-start justify-between gap-3 rounded-xl border border-surface-200/80 bg-surface-50/50 px-3.5 py-3 cursor-pointer hover:border-surface-300 transition-all"
                     >
-                      <span className="text-sm font-medium text-surface-900">{PERM_LABELS[key]}</span>
+                      <div className="min-w-0">
+                        <span className="text-sm font-semibold text-surface-900">{PERM_LABELS[key]}</span>
+                        <p className="text-xs text-surface-500 mt-0.5 leading-snug">{PERM_DESCRIPTIONS[key]}</p>
+                      </div>
                       <button
                         type="button"
                         role="switch"
@@ -424,7 +440,7 @@ export function RolesPage() {
                           })
                         }
                         className={cn(
-                          'relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors',
+                          'relative mt-0.5 inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors',
                           editForm.permissions[key] ? 'bg-primary-600' : 'bg-surface-300',
                         )}
                       >
