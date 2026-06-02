@@ -5,7 +5,7 @@ import type { CreateRoleDto } from '@/api/roles.api';
 import type { Role } from '@/types/auth.types';
 import { extractErrorMessage } from '@/lib/errors';
 import { toast } from 'sonner';
-import { Loader2, Shield, ShieldCheck, Check, X, Plus, Pencil, HelpCircle, Eye, FileEdit, Send, PackageCheck, ThumbsUp, ThumbsDown, ChevronDown } from 'lucide-react';
+import { Loader2, Shield, ShieldCheck, Check, X, Plus, Pencil, HelpCircle, Eye, FileEdit, Send, PackageCheck, RefreshCw, ThumbsUp, ThumbsDown, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const PERM_LABELS: Record<string, string> = {
@@ -13,18 +13,19 @@ const PERM_LABELS: Record<string, string> = {
   edit: 'Editar',
   send: 'Enviar',
   receive: 'Receber',
+  changeStatus: 'Alterar Status',
   approve: 'Aprovar',
   reject: 'Rejeitar',
 };
 
-const PERM_KEYS = ['view', 'edit', 'send', 'receive', 'approve', 'reject'] as const;
+const PERM_KEYS = ['view', 'edit', 'send', 'receive', 'changeStatus', 'approve', 'reject'] as const;
 
 const INPUT_CLASS =
   'w-full rounded-xl border border-surface-200/80 bg-surface-50/50 px-3.5 py-2.5 text-sm font-medium text-surface-900 outline-none focus:bg-white focus:border-primary-400 focus:ring-4 focus:ring-primary-100 transition-all hover:border-surface-300 placeholder:text-surface-400';
 
 const LABEL_CLASS = 'block text-xs font-bold uppercase tracking-wider text-surface-500 mb-1.5';
 
-const DEFAULT_PERMISSIONS = { view: false, edit: false, send: false, receive: false, approve: false, reject: false };
+const DEFAULT_PERMISSIONS = { view: false, edit: false, send: false, receive: false, changeStatus: false, approve: false, reject: false };
 
 function slugify(name: string): string {
   return name
@@ -137,7 +138,7 @@ export function RolesPage() {
                 icon={FileEdit}
                 label="Editar"
                 color="amber"
-                description="Criar, alterar e excluir usuários, setores, perfis e tipos de solicitação. Também permite alterar o status de protocolos."
+                description="Criar, alterar e excluir usuários, setores, perfis e tipos de solicitação. Não controla a mudança de status de protocolos."
               />
               <PermGuideItem
                 icon={Send}
@@ -150,6 +151,12 @@ export function RolesPage() {
                 label="Receber"
                 color="cyan"
                 description="Confirmar o recebimento de protocolos quando chegam ao setor do usuário."
+              />
+              <PermGuideItem
+                icon={RefreshCw}
+                label="Alterar Status"
+                color="violet"
+                description="Mudar o status dos protocolos (em análise, pendente de documento, recebido, etc.). Ideal para quem opera no balcão de protocolo sem dar acesso às demais edições administrativas."
               />
               <PermGuideItem
                 icon={ThumbsUp}
@@ -467,6 +474,7 @@ const GUIDE_COLORS: Record<string, { bg: string; text: string; border: string }>
   amber:   { bg: 'bg-amber-50',   text: 'text-amber-600',   border: 'border-amber-100' },
   primary: { bg: 'bg-primary-50', text: 'text-primary-600', border: 'border-primary-100' },
   cyan:    { bg: 'bg-cyan-50',    text: 'text-cyan-600',    border: 'border-cyan-100' },
+  violet:  { bg: 'bg-violet-50',  text: 'text-violet-600',  border: 'border-violet-100' },
   success: { bg: 'bg-success-50', text: 'text-success-600', border: 'border-success-100' },
   danger:  { bg: 'bg-danger-50',  text: 'text-danger-600',  border: 'border-danger-100' },
 };

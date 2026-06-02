@@ -19,7 +19,7 @@ export function canReceive(user: AuthUser, request: ProtocolRequest): boolean {
 
 export function canChangeStatus(user: AuthUser): boolean {
   if (user.isSuperadmin) return true;
-  return user.role.permissions.edit;
+  return user.role.permissions.changeStatus;
 }
 
 export function canApprove(user: AuthUser): boolean {

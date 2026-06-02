@@ -44,6 +44,7 @@ export interface Permissions {
   edit: boolean;
   send: boolean;
   receive: boolean;
+  changeStatus: boolean;
   approve: boolean;
   reject: boolean;
 }
