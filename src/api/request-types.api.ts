@@ -8,6 +8,15 @@ export interface CreateRequestTypeDto {
   isActive?: boolean;
 }
 
+/** Atualização parcial; `justification` é obrigatória quando o fluxo muda. */
+export interface UpdateRequestTypeDto {
+  name?: string;
+  slaDays?: number;
+  flow?: string[];
+  isActive?: boolean;
+  justification?: string;
+}
+
 export const requestTypesApi = {
   async list(): Promise<RequestType[]> {
     const res = await api.get<RequestType[]>('/request-types');
@@ -24,7 +33,7 @@ export const requestTypesApi = {
     return res.data;
   },
 
-  async update(id: string, data: CreateRequestTypeDto): Promise<RequestType> {
+  async update(id: string, data: UpdateRequestTypeDto): Promise<RequestType> {
     const res = await api.patch<RequestType>(`/request-types/${id}`, data);
     return res.data;
   },

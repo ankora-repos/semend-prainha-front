@@ -32,6 +32,12 @@ export function canReject(user: AuthUser): boolean {
   return user.role.permissions.reject;
 }
 
+/** Admin do município (perfil 'admin') ou superadmin — pode apagar protocolos, trocar tipo, etc. */
+export function isAdmin(user: AuthUser | null): boolean {
+  if (!user) return false;
+  return user.isSuperadmin || user.role?.slug === 'admin';
+}
+
 export function hasPerm(user: AuthUser | null, perm: keyof Permissions): boolean {
   if (!user) return false;
   if (user.isSuperadmin) return true;

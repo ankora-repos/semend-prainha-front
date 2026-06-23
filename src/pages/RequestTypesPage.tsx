@@ -16,9 +16,10 @@ interface FormState {
   name: string;
   slaDays: string;
   flow: string[];
+  justification: string;
 }
 
-const emptyForm: FormState = { name: '', slaDays: '', flow: [] };
+const emptyForm: FormState = { name: '', slaDays: '', flow: [], justification: '' };
 
 export function RequestTypesPage() {
   const queryClient = useQueryClient();
@@ -28,7 +29,11 @@ export function RequestTypesPage() {
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
+  const [originalFlow, setOriginalFlow] = useState<string[]>([]);
   const [sectorToAdd, setSectorToAdd] = useState('');
+
+  // Detecta mudança de fluxo na edição (exige justificativa).
+  const flowChanged = !!editingId && JSON.stringify(form.flow) !== JSON.stringify(originalFlow);
 
   function openCreate() {
     setEditingId(null);
@@ -38,7 +43,8 @@ export function RequestTypesPage() {
 
   function openEdit(t: RequestType) {
     setEditingId(t.id);
-    setForm({ name: t.name, slaDays: String(t.slaDays), flow: [...t.flow] });
+    setForm({ name: t.name, slaDays: String(t.slaDays), flow: [...t.flow], justification: '' });
+    setOriginalFlow([...t.flow]);
     setShowModal(true);
   }
 
@@ -46,6 +52,7 @@ export function RequestTypesPage() {
     setShowModal(false);
     setEditingId(null);
     setForm(emptyForm);
+    setOriginalFlow([]);
     setSectorToAdd('');
   }
 
@@ -70,7 +77,7 @@ export function RequestTypesPage() {
   }
 
   const saveMutation = useMutation({
-    mutationFn: (data: CreateRequestTypeDto) =>
+    mutationFn: (data: CreateRequestTypeDto & { justification?: string }) =>
       editingId ? requestTypesApi.update(editingId, data) : requestTypesApi.create(data),
     onSuccess: () => {
       toast.success(editingId ? 'Tipo atualizado!' : 'Tipo criado com sucesso!');
@@ -96,7 +103,16 @@ export function RequestTypesPage() {
       toast.error('Preencha todos os campos e adicione pelo menos um setor ao fluxo.');
       return;
     }
-    saveMutation.mutate({ name: form.name.trim(), slaDays, flow: form.flow });
+    if (flowChanged && form.justification.trim().length < 5) {
+      toast.error('Você alterou o fluxo de tramitação — informe uma justificativa (mín. 5 caracteres).');
+      return;
+    }
+    saveMutation.mutate({
+      name: form.name.trim(),
+      slaDays,
+      flow: form.flow,
+      justification: flowChanged ? form.justification.trim() : undefined,
+    });
   }
 
   function handleDelete(t: RequestType) {
@@ -334,6 +350,24 @@ export function RequestTypesPage() {
                   </button>
                 </div>
               </div>
+
+              {flowChanged && (
+                <div className="rounded-lg border border-warning-500/30 bg-warning-50 p-3">
+                  <label className="block text-xs font-bold text-warning-600 mb-1">
+                    Você alterou o fluxo — justifique a alteração (obrigatório, será auditado)
+                  </label>
+                  <textarea
+                    value={form.justification}
+                    onChange={(e) => setForm((f) => ({ ...f, justification: e.target.value }))}
+                    rows={2}
+                    placeholder="Ex.: corrigindo a ordem dos setores que estava errada"
+                    className="w-full rounded-lg border border-surface-200 bg-white px-3 py-2 text-sm text-surface-900 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
+                  />
+                  <p className="mt-1 text-[11px] text-warning-600">
+                    Protocolos em andamento deste tipo serão recalculados pela posição do setor atual.
+                  </p>
+                </div>
+              )}
 
               <div className="flex items-center justify-end gap-3 pt-2 border-t border-surface-100">
                 <button

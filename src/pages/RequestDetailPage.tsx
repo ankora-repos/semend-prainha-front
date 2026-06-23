@@ -8,17 +8,18 @@ import { auditLogsApi } from '@/api/audit-logs.api';
 import type { ProtocolActivity } from '@/api/audit-logs.api';
 import { reportsApi, triggerPdfDownload } from '@/api/reports.api';
 import { sectorsApi } from '@/api/sectors.api';
+import { requestTypesApi } from '@/api/request-types.api';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 import { formatStatus, statusColor, formatDateTime, formatDate, formatDeadline, formatFileSize } from '@/lib/format';
-import { canForward, canReceive, canChangeStatus } from '@/lib/permissions';
+import { canForward, canReceive, canChangeStatus, isAdmin } from '@/lib/permissions';
 import { extractErrorMessage } from '@/lib/errors';
 import { toast } from 'sonner';
 import type { RequestStatus, ChangeStatusDto } from '@/types/request.types';
 import {
   ArrowLeft, Loader2, Send, CheckCircle, FileUp, Paperclip, Download, Printer,
   Clock, AlertTriangle, Building2, User, ChevronDown, X, MessageSquare, ArrowRight,
-  Pencil, Eye, FileText as FileTextIcon, Image as ImageIcon, Activity,
+  Pencil, Eye, FileText as FileTextIcon, Image as ImageIcon, Activity, Trash2, Repeat,
 } from 'lucide-react';
 
 export function RequestDetailPage() {
@@ -48,6 +49,11 @@ export function RequestDetailPage() {
   // Modals
   const [showForward, setShowForward] = useState(false);
   const [showStatus, setShowStatus] = useState(false);
+  const [showDelete, setShowDelete] = useState(false);
+  const [deleteReason, setDeleteReason] = useState('');
+  const [showChangeType, setShowChangeType] = useState(false);
+  const [newTypeId, setNewTypeId] = useState('');
+  const [changeTypeJustification, setChangeTypeJustification] = useState('');
   const [forwardCode, setForwardCode] = useState('');
   const [forwardNotes, setForwardNotes] = useState('');
   const [newStatus, setNewStatus] = useState<RequestStatus>('EM_ANALISE');
@@ -109,6 +115,37 @@ export function RequestDetailPage() {
       queryClient.invalidateQueries({ queryKey: ['requests', id] });
       queryClient.invalidateQueries({ queryKey: ['requests'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    },
+    onError: (err) => toast.error(extractErrorMessage(err)),
+  });
+
+  // Tipos de solicitação (para a troca de tipo — somente admin)
+  const { data: requestTypes } = useQuery({
+    queryKey: ['request-types'],
+    queryFn: () => requestTypesApi.list(),
+    enabled: showChangeType,
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: () => requestsApi.remove(id!, deleteReason.trim()),
+    onSuccess: () => {
+      toast.success('Protocolo apagado.');
+      queryClient.invalidateQueries({ queryKey: ['requests'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      navigate('/protocolos');
+    },
+    onError: (err) => toast.error(extractErrorMessage(err)),
+  });
+
+  const changeTypeMutation = useMutation({
+    mutationFn: () => requestsApi.changeRequestType(id!, newTypeId, changeTypeJustification.trim()),
+    onSuccess: () => {
+      toast.success('Tipo de solicitação alterado!');
+      setShowChangeType(false);
+      setNewTypeId('');
+      setChangeTypeJustification('');
+      queryClient.invalidateQueries({ queryKey: ['requests', id] });
+      queryClient.invalidateQueries({ queryKey: ['requests'] });
     },
     onError: (err) => toast.error(extractErrorMessage(err)),
   });
@@ -313,6 +350,24 @@ export function RequestDetailPage() {
             {printingReceipt ? <Loader2 className="h-4 w-4 animate-spin" /> : <Printer className="h-4 w-4" />}
             Imprimir
           </button>
+          {user && isAdmin(user) && (
+            <>
+              <button
+                onClick={() => setShowChangeType(true)}
+                title="Trocar o tipo de solicitação deste protocolo (admin)"
+                className="inline-flex items-center gap-2 rounded-xl border border-surface-200/80 bg-white px-4 py-2 text-sm font-bold text-surface-700 shadow-sm hover:bg-surface-50 hover:border-surface-300 transition-all"
+              >
+                <Repeat className="h-4 w-4" /> Trocar tipo
+              </button>
+              <button
+                onClick={() => setShowDelete(true)}
+                title="Apagar este protocolo (admin)"
+                className="inline-flex items-center gap-2 rounded-xl border border-danger-500/30 bg-white px-4 py-2 text-sm font-bold text-danger-600 shadow-sm hover:bg-danger-50 transition-all"
+              >
+                <Trash2 className="h-4 w-4" /> Apagar
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -897,6 +952,90 @@ export function RequestDetailPage() {
               </button>
             </div>
           </form>
+        </Modal>
+      )}
+
+      {/* Apagar protocolo (admin) */}
+      {showDelete && (
+        <Modal onClose={() => setShowDelete(false)} title="Apagar protocolo" icon={<Trash2 className="h-5 w-5 text-danger-600" />}>
+          <div className="space-y-4">
+            <div className="rounded-lg border border-danger-500/30 bg-danger-50 px-4 py-3 text-sm text-danger-600">
+              Esta ação não pode ser desfeita pela interface. O protocolo sairá das listas, mas ficará registrado e
+              travado (read-only) na aba <strong>Protocolos apagados</strong> da Auditoria.
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-surface-700 mb-1">Justificativa (obrigatória)</label>
+              <textarea
+                value={deleteReason}
+                onChange={(e) => setDeleteReason(e.target.value)}
+                rows={3}
+                placeholder="Descreva o motivo da exclusão deste protocolo"
+                className="w-full rounded-xl border border-surface-200 bg-white px-4 py-2.5 text-sm text-surface-900 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
+              />
+            </div>
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button type="button" onClick={() => setShowDelete(false)} className="rounded-xl px-5 py-2.5 text-sm font-bold text-surface-600 hover:bg-surface-100 transition-colors">
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={() => deleteMutation.mutate()}
+                disabled={deleteReason.trim().length < 5 || deleteMutation.isPending}
+                className="inline-flex items-center gap-2 rounded-xl bg-danger-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-danger-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+              >
+                {deleteMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                Apagar protocolo
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Trocar tipo de solicitação (admin) */}
+      {showChangeType && (
+        <Modal onClose={() => setShowChangeType(false)} title="Trocar tipo de solicitação" icon={<Repeat className="h-5 w-5 text-primary-600" />}>
+          <div className="space-y-4">
+            <p className="text-sm text-surface-500">
+              Use para corrigir um protocolo preso a um tipo errado. O fluxo será recalculado pela posição do setor atual no novo tipo.
+            </p>
+            <div>
+              <label className="block text-sm font-bold text-surface-700 mb-1">Novo tipo de solicitação</label>
+              <select
+                value={newTypeId}
+                onChange={(e) => setNewTypeId(e.target.value)}
+                className="w-full rounded-xl border border-surface-200 bg-white px-4 py-2.5 text-sm text-surface-900 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
+              >
+                <option value="">Selecione um tipo...</option>
+                {(requestTypes ?? []).filter((t) => t.id !== request.requestType?.id).map((t) => (
+                  <option key={t.id} value={t.id}>{t.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-surface-700 mb-1">Justificativa (obrigatória)</label>
+              <textarea
+                value={changeTypeJustification}
+                onChange={(e) => setChangeTypeJustification(e.target.value)}
+                rows={2}
+                placeholder="Motivo da troca de tipo"
+                className="w-full rounded-xl border border-surface-200 bg-white px-4 py-2.5 text-sm text-surface-900 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
+              />
+            </div>
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button type="button" onClick={() => setShowChangeType(false)} className="rounded-xl px-5 py-2.5 text-sm font-bold text-surface-600 hover:bg-surface-100 transition-colors">
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={() => changeTypeMutation.mutate()}
+                disabled={!newTypeId || changeTypeJustification.trim().length < 5 || changeTypeMutation.isPending}
+                className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-primary-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+              >
+                {changeTypeMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Repeat className="h-4 w-4" />}
+                Trocar tipo
+              </button>
+            </div>
+          </div>
         </Modal>
       )}
     </div>

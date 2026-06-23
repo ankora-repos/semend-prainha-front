@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { auditLogsApi } from '@/api/audit-logs.api';
+import { requestsApi } from '@/api/requests.api';
+import { useAuth } from '@/contexts/AuthContext';
+import { isAdmin } from '@/lib/permissions';
 import { formatDateTime } from '@/lib/format';
 import {
   Loader2, ScrollText, ChevronLeft, ChevronRight, User, FileText,
@@ -405,11 +408,21 @@ function AuditLogCard({ log }: { log: AuditLog }) {
 }
 
 export function AuditLogsPage() {
+  const { user } = useAuth();
+  const admin = isAdmin(user);
+  const [tab, setTab] = useState<'logs' | 'deleted'>('logs');
   const [params, setParams] = useState<AuditLogListParams>({ page: 1, limit: 20 });
 
   const { data, isLoading } = useQuery({
     queryKey: ['audit-logs', params],
     queryFn: () => auditLogsApi.list(params),
+    enabled: tab === 'logs',
+  });
+
+  const { data: deleted, isLoading: deletedLoading } = useQuery({
+    queryKey: ['requests-deleted'],
+    queryFn: () => requestsApi.listDeleted(),
+    enabled: tab === 'deleted' && admin,
   });
 
   return (
@@ -419,6 +432,67 @@ export function AuditLogsPage() {
         <p className="text-surface-500 mt-1">Registro de todas as ações realizadas no sistema</p>
       </div>
 
+      {/* Tabs */}
+      {admin && (
+        <div className="flex gap-1 border-b border-surface-200">
+          <button
+            onClick={() => setTab('logs')}
+            className={cn('px-4 py-2 text-sm font-semibold border-b-2 -mb-px transition-colors',
+              tab === 'logs' ? 'border-primary-600 text-primary-700' : 'border-transparent text-surface-500 hover:text-surface-700')}
+          >
+            Logs de auditoria
+          </button>
+          <button
+            onClick={() => setTab('deleted')}
+            className={cn('inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold border-b-2 -mb-px transition-colors',
+              tab === 'deleted' ? 'border-primary-600 text-primary-700' : 'border-transparent text-surface-500 hover:text-surface-700')}
+          >
+            <Trash2 className="h-4 w-4" /> Protocolos apagados
+          </button>
+        </div>
+      )}
+
+      {tab === 'deleted' && admin && (
+        <div className="space-y-3">
+          {deletedLoading ? (
+            <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary-500" /></div>
+          ) : !deleted?.length ? (
+            <div className="rounded-xl border border-surface-200 bg-white py-16 text-center">
+              <Trash2 className="h-12 w-12 mx-auto text-surface-300 mb-3" />
+              <p className="text-surface-500">Nenhum protocolo apagado</p>
+            </div>
+          ) : (
+            deleted.map((d) => (
+              <div key={d.id} className="rounded-xl border border-surface-200 bg-white p-4 opacity-90">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-sm font-bold text-surface-800">{d.protocolNumber}</span>
+                      <span className="inline-flex items-center gap-1 rounded-md bg-danger-50 px-2 py-0.5 text-[11px] font-bold text-danger-600">
+                        <Trash2 className="h-3 w-3" /> Apagado
+                      </span>
+                    </div>
+                    <p className="mt-1 text-sm text-surface-600 truncate">{d.description}</p>
+                    <p className="mt-0.5 text-xs text-surface-400">
+                      {d.requestType ?? '—'} • {d.requesterName ?? 'Solicitante não informado'} • criado em {formatDateTime(d.createdAt)}
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-3 rounded-lg bg-surface-50 px-3 py-2 text-xs text-surface-600">
+                  <span className="font-semibold">Apagado por</span> {d.deletedByName ?? '—'}
+                  {d.deletedAt && <> em {formatDateTime(d.deletedAt)}</>}
+                  {d.deletionReason && (
+                    <p className="mt-1"><span className="font-semibold">Motivo:</span> {d.deletionReason}</p>
+                  )}
+                </div>
+                <p className="mt-2 text-[11px] text-surface-400 italic">Registro travado (somente leitura).</p>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
+      {tab === 'logs' && (<>
       {/* Filters */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <select
@@ -491,6 +565,7 @@ export function AuditLogsPage() {
           )}
         </>
       )}
+      </>)}
     </div>
   );
 }
