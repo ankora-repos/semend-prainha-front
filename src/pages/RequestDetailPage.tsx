@@ -272,6 +272,22 @@ export function RequestDetailPage() {
   const currentIdx = flow.indexOf(request.currentSector.code);
   const nextSectorCode = currentIdx >= 0 && currentIdx < flow.length - 1 ? flow[currentIdx + 1] : null;
 
+  // Recebimento pendente: existe tramitação de entrada no setor atual ainda não recebida.
+  const recebimentoPendente = (request.tramitations ?? []).some(
+    (t) => t.toSector?.id === request.currentSectorId && !t.receivedAt,
+  );
+
+  // Trava de tramitação: só encaminha após confirmar o recebimento.
+  function handleForwardClick() {
+    if (recebimentoPendente) {
+      toast.warning('Confirme o recebimento antes de encaminhar este protocolo.');
+      return;
+    }
+    if (!nextSectorCode) return;
+    setForwardCode(nextSectorCode);
+    setShowForward(true);
+  }
+
   return (
     <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-500 pb-12">
       {/* Header */}
@@ -310,13 +326,13 @@ export function RequestDetailPage() {
             <>
               {canForward(user, request) && nextSectorCode && (
                 <button
-                  onClick={() => { setForwardCode(nextSectorCode); setShowForward(true); }}
+                  onClick={handleForwardClick}
                   className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-4 py-2 text-sm font-bold text-white shadow-sm hover:shadow-md hover:bg-primary-700 hover:-translate-y-0.5 transition-all"
                 >
                   <Send className="h-4 w-4" /> Tramitar → {nextSectorCode}
                 </button>
               )}
-              {canReceive(user, request) && request.status === 'PROTOCOLADO' && (
+              {canReceive(user, request) && recebimentoPendente && (
                 <button
                   onClick={() => receiveMutation.mutate()}
                   disabled={receiveMutation.isPending}
@@ -381,14 +397,14 @@ export function RequestDetailPage() {
               <>
                 {canForward(user, request) && nextSectorCode && (
                   <button
-                    onClick={() => { setForwardCode(nextSectorCode); setShowForward(true); }}
+                    onClick={handleForwardClick}
                     className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-primary-700 active:scale-[0.98] transition-all"
                   >
                     <Send className="h-4 w-4" /> Enviar para {nextSectorCode}
                   </button>
                 )}
                 <div className="grid grid-cols-2 gap-2 w-full">
-                  {canReceive(user, request) && request.status === 'PROTOCOLADO' && (
+                  {canReceive(user, request) && recebimentoPendente && (
                     <button
                       onClick={() => receiveMutation.mutate()}
                       disabled={receiveMutation.isPending}
