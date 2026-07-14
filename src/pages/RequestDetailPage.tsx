@@ -260,7 +260,9 @@ export function RequestDetailPage() {
   }
 
   const colors = statusColor(request.status);
-  const isTerminal = ['DEFERIDO', 'INDEFERIDO', 'CONCLUIDO'].includes(request.status);
+  // Só CONCLUÍDO trava as ações. Deferido/indeferido seguem o fluxo (tramitar,
+  // receber, alterar status, anexar) até o fim do fluxo ou até serem concluídos.
+  const isTerminal = request.status === 'CONCLUIDO';
   const needsJustification = newStatus === 'INDEFERIDO' || newStatus === 'PENDENTE_DOCUMENTO';
 
   const availableStatuses: RequestStatus[] = [

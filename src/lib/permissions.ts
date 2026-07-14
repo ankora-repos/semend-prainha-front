@@ -50,8 +50,8 @@ export function getAvailableActions(
 ): Array<'forward' | 'receive' | 'changeStatus'> {
   const actions: Array<'forward' | 'receive' | 'changeStatus'> = [];
 
-  const isTerminal = ['DEFERIDO', 'INDEFERIDO', 'CONCLUIDO'].includes(request.status);
-  if (isTerminal) return actions;
+  // Apenas CONCLUÍDO encerra o fluxo; deferido/indeferido continuam tramitando.
+  if (request.status === 'CONCLUIDO') return actions;
 
   if (canForward(user, request)) actions.push('forward');
   if (canReceive(user, request)) actions.push('receive');
