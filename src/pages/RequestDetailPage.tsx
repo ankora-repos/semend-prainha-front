@@ -271,7 +271,9 @@ export function RequestDetailPage() {
 
   // Next sector from flow
   const flow = request.requestType?.flow ?? [];
-  const currentIdx = flow.indexOf(request.currentSector.code);
+  // Posição real no fluxo = currentFlowStep (armazenado). Usar indexOf quebra
+  // fluxos com setor repetido (pega sempre a 1ª ocorrência).
+  const currentIdx = request.currentFlowStep;
   const nextSectorCode = currentIdx >= 0 && currentIdx < flow.length - 1 ? flow[currentIdx + 1] : null;
 
   // Recebimento pendente: existe tramitação de entrada no setor atual ainda não recebida.
@@ -603,11 +605,11 @@ export function RequestDetailPage() {
                   <p className="text-xs font-bold uppercase tracking-wider text-surface-500 mb-3">Fluxo de Tramitação</p>
                   <div className="flex flex-wrap items-center gap-1.5">
                     {flow.map((code, i) => {
-                      const isCurrent = code === request.currentSector.code;
-                      const isPast = flow.indexOf(request.currentSector.code) > i;
-                      
+                      const isCurrent = i === request.currentFlowStep;
+                      const isPast = i < request.currentFlowStep;
+
                       return (
-                        <div key={code} className="flex items-center gap-1.5">
+                        <div key={`${code}-${i}`} className="flex items-center gap-1.5">
                           <span className={cn(
                             'rounded-lg px-2.5 py-1 text-xs font-bold transition-all',
                             isCurrent

@@ -21,6 +21,7 @@ interface LookupResult {
   requesterCpf: string | null;
   isOverdue: boolean;
   progress: number;
+  currentFlowStep: number;
   requestType: { name: string; flow: string[] };
   currentSector: { name: string; code: string };
   sectorOrigin: { name: string };
@@ -394,8 +395,8 @@ export function PublicLookupPage() {
                         {/* Mobile: vertical flow */}
                         <div className="flex flex-col gap-2 sm:hidden">
                           {flow.map((code, i) => {
-                            const isCurrent = code === r.currentSector.code;
-                            const isPast = flow.indexOf(r.currentSector.code) > i || r.progress === 100;
+                            const isCurrent = i === r.currentFlowStep;
+                            const isPast = i < r.currentFlowStep || r.progress === 100;
                             return (
                               <div key={i} className="flex items-center gap-2">
                                 <div className={cn(
@@ -421,8 +422,8 @@ export function PublicLookupPage() {
                         {/* Desktop: horizontal wrap flow */}
                         <div className="hidden sm:flex flex-wrap items-center gap-2">
                           {flow.map((code, i) => {
-                            const isCurrent = code === r.currentSector.code;
-                            const isPast = flow.indexOf(r.currentSector.code) > i || r.progress === 100;
+                            const isCurrent = i === r.currentFlowStep;
+                            const isPast = i < r.currentFlowStep || r.progress === 100;
                             return (
                               <div key={i} className="flex items-center gap-2">
                                 <div className={cn(

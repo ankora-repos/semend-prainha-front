@@ -43,12 +43,13 @@ export function RequestsPage() {
 
   const FINAL_STATUSES = ['DEFERIDO', 'INDEFERIDO', 'CONCLUIDO'];
 
-  function getProgress(req: { requestType: { id: string }; currentSector: { code: string }; status: string }) {
+  function getProgress(req: { requestType: { id: string }; currentFlowStep: number; status: string }) {
     if (FINAL_STATUSES.includes(req.status)) return 100;
     const rt = requestTypes?.find((t) => t.id === req.requestType.id);
     if (!rt || rt.flow.length <= 1) return 0;
-    const idx = rt.flow.indexOf(req.currentSector.code);
-    if (idx === -1) return 0;
+    // currentFlowStep = posição real (indexOf quebra com setor repetido).
+    const idx = req.currentFlowStep;
+    if (idx < 0 || idx >= rt.flow.length) return 0;
     return Math.round((idx / (rt.flow.length - 1)) * 100);
   }
 

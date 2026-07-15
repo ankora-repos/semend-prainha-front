@@ -16,6 +16,7 @@ export interface ProtocolRequest {
   description: string;
   status: RequestStatus;
   currentSectorId: string;
+  currentFlowStep: number;
   deadlineAt: string;
   createdAt: string;
   updatedAt: string;
