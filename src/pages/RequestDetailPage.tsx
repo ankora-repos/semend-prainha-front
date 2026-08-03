@@ -294,10 +294,11 @@ export function RequestDetailPage() {
 
   return (
     <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-500 pb-12">
-      {/* Header — as ações só ficam ao lado do título em telas bem largas (xl);
-          abaixo disso vão para a linha de baixo, senão atropelam o nº do protocolo. */}
-      <div className="flex flex-col xl:flex-row xl:items-start gap-4 justify-between">
-        <div className="flex items-start gap-3 flex-1 min-w-0">
+      {/* Header — identificação em cima (largura total, nunca espremida) e a
+          barra de ações logo abaixo. São 7 ações: lado a lado com o título elas
+          nunca cabem e acabavam esmagando o número do protocolo. */}
+      <div className="space-y-4">
+        <div className="flex items-start gap-3">
           <button
             onClick={() => navigate('/protocolos')}
             className="flex-shrink-0 flex h-10 w-10 items-center justify-center rounded-xl border border-surface-200/60 bg-white text-surface-500 shadow-sm transition-all hover:bg-surface-50 hover:text-surface-900 focus:outline-none focus:ring-2 focus:ring-primary-100 mt-1"
@@ -307,7 +308,7 @@ export function RequestDetailPage() {
           </button>
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-center gap-3 mb-2">
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-surface-900 tracking-tight break-words min-w-0">#{request.protocolNumber}</h1>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-surface-900 tracking-tight break-words">#{request.protocolNumber}</h1>
               <span className={cn('inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-bold uppercase tracking-wider shadow-sm saturate-150', colors.bg, colors.text, 'border-current/10')}>
                 <span className={cn('h-1.5 w-1.5 rounded-full animate-pulse', colors.dot)} />
                 {formatStatus(request.status)}
@@ -326,7 +327,7 @@ export function RequestDetailPage() {
         </div>
 
         {/* Actions Desktop */}
-        <div className="hidden sm:flex flex-wrap items-center gap-2 xl:justify-end xl:shrink-0">
+        <div className="hidden sm:flex flex-wrap items-center gap-2">
           {!isTerminal && user && (
             <>
               {canForward(user, request) && nextSectorCode && (
@@ -373,6 +374,8 @@ export function RequestDetailPage() {
           </button>
           {user && isAdmin(user) && (
             <>
+              {/* separa as ações administrativas do fluxo do dia a dia */}
+              <div className="mx-1 h-6 w-px bg-surface-200" aria-hidden />
               <button
                 onClick={() => setShowChangeType(true)}
                 title="Trocar o tipo de solicitação deste protocolo (admin)"
