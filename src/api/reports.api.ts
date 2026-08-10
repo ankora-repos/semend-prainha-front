@@ -7,6 +7,8 @@ export const reportsApi = {
     sectorCode?: string;
     requestTypeId?: string;
     status?: string;
+    /** Somente protocolos atrasados (prazo vencido e sem decisão final). */
+    isOverdue?: boolean;
   }): Promise<Blob> {
     const res = await api.get('/reports/requests', {
       params,

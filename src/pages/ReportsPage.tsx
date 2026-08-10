@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { reportsApi, triggerPdfDownload } from '@/api/reports.api';
 import { useQuery } from '@tanstack/react-query';
 import { sectorsApi } from '@/api/sectors.api';
+import { requestTypesApi } from '@/api/request-types.api';
 
 import { extractErrorMessage } from '@/lib/errors';
 import { toast } from 'sonner';
 import { formatStatus } from '@/lib/format';
-import { Loader2, FileDown, Calendar, ArrowRight } from 'lucide-react';
+import { Loader2, FileDown, Calendar, ArrowRight, AlertTriangle } from 'lucide-react';
 import type { RequestStatus } from '@/types/request.types';
 
 const ALL_STATUSES: RequestStatus[] = ['PROTOCOLADO', 'RECEBIDO_PELO_SETOR', 'EM_ANALISE', 'PENDENTE_DOCUMENTO', 'DEFERIDO', 'INDEFERIDO', 'CONCLUIDO'];
@@ -16,10 +17,12 @@ export function ReportsPage() {
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [sectorCode, setSectorCode] = useState('');
-  const [requestTypeId] = useState('');
+  const [requestTypeId, setRequestTypeId] = useState('');
   const [status, setStatus] = useState('');
+  const [onlyOverdue, setOnlyOverdue] = useState(false);
 
   const { data: sectors } = useQuery({ queryKey: ['sectors'], queryFn: () => sectorsApi.list() });
+  const { data: requestTypes } = useQuery({ queryKey: ['request-types'], queryFn: () => requestTypesApi.list() });
 
   async function handleExport() {
     setLoading(true);
@@ -28,8 +31,10 @@ export function ReportsPage() {
         from: from || undefined, to: to || undefined,
         sectorCode: sectorCode || undefined, requestTypeId: requestTypeId || undefined,
         status: status || undefined,
+        isOverdue: onlyOverdue || undefined,
       });
-      triggerPdfDownload(blob, `protocolos-${new Date().toISOString().slice(0, 10)}.pdf`);
+      const prefix = onlyOverdue ? 'protocolos-atrasados' : 'protocolos';
+      triggerPdfDownload(blob, `${prefix}-${new Date().toISOString().slice(0, 10)}.pdf`);
       toast.success('Relatório gerado com sucesso!');
     } catch (err) {
       toast.error(extractErrorMessage(err));
@@ -90,18 +95,56 @@ export function ReportsPage() {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-surface-500 mb-1.5">Situação (Status)</label>
-              <select 
-                value={status} 
-                onChange={(e) => setStatus(e.target.value)} 
+              <label className="block text-xs font-bold uppercase tracking-wider text-surface-500 mb-1.5">Tipo de Solicitação</label>
+              <select
+                value={requestTypeId}
+                onChange={(e) => setRequestTypeId(e.target.value)}
                 className="w-full rounded-xl border border-surface-200/80 bg-surface-50/50 px-3.5 py-2.5 text-sm font-medium text-surface-900 outline-none focus:bg-white focus:border-primary-400 focus:ring-4 focus:ring-primary-100 transition-all hover:border-surface-300"
+              >
+                <option value="">Todos os tipos</option>
+                {requestTypes?.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-surface-500 mb-1.5">Situação (Status)</label>
+              <select
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+                disabled={onlyOverdue}
+                className="w-full rounded-xl border border-surface-200/80 bg-surface-50/50 px-3.5 py-2.5 text-sm font-medium text-surface-900 outline-none focus:bg-white focus:border-primary-400 focus:ring-4 focus:ring-primary-100 transition-all hover:border-surface-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <option value="">Todos os status</option>
                 {ALL_STATUSES.map((s) => <option key={s} value={s}>{formatStatus(s)}</option>)}
               </select>
             </div>
           </div>
-          
+
+          {/* Somente atrasados — atalho para o relatório de pendências */}
+          <label
+            className={`flex items-start gap-3 rounded-xl border p-4 cursor-pointer transition-all ${
+              onlyOverdue
+                ? 'border-danger-500/40 bg-danger-50'
+                : 'border-surface-200/80 bg-surface-50/50 hover:border-surface-300'
+            }`}
+          >
+            <input
+              type="checkbox"
+              checked={onlyOverdue}
+              onChange={(e) => { setOnlyOverdue(e.target.checked); if (e.target.checked) setStatus(''); }}
+              className="mt-0.5 h-4 w-4 rounded border-surface-300 accent-danger-600"
+            />
+            <div>
+              <span className="flex items-center gap-1.5 text-sm font-bold text-surface-900">
+                <AlertTriangle className={`h-4 w-4 ${onlyOverdue ? 'text-danger-600' : 'text-surface-400'}`} />
+                Somente protocolos atrasados
+              </span>
+              <p className="text-xs font-medium text-surface-500 mt-0.5">
+                Lista apenas os que passaram do prazo e ainda não foram concluídos. O PDF ganha as colunas
+                de prazo e dias de atraso.
+              </p>
+            </div>
+          </label>
+
           <div className="pt-6 border-t border-surface-100 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-xs font-medium text-surface-500 flex-1">
               O relatório será gerado no formato PDF contendo a listagem dos protocolos que atendem aos filtros acima.
