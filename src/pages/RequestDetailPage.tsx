@@ -13,7 +13,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 import { formatStatus, statusColor, formatDateTime, formatDate, formatDeadline, formatFileSize } from '@/lib/format';
 import { canForward, canReceive, canChangeStatus, isAdmin } from '@/lib/permissions';
-import { extractErrorMessage } from '@/lib/errors';
+import { extractErrorMessage, extractErrorMessageAsync } from '@/lib/errors';
 import { toast } from 'sonner';
 import type { RequestStatus, ChangeStatusDto } from '@/types/request.types';
 import {
@@ -80,7 +80,7 @@ export function RequestDetailPage() {
       const blob = await reportsApi.downloadReceipt(id);
       triggerPdfDownload(blob, `comprovante-${request.protocolNumber}.pdf`);
     } catch (err) {
-      toast.error('Erro ao gerar comprovante: ' + extractErrorMessage(err));
+      toast.error('Erro ao gerar comprovante: ' + (await extractErrorMessageAsync(err)));
     } finally {
       setPrintingReceipt(false);
     }
@@ -210,7 +210,7 @@ export function RequestDetailPage() {
     } catch (err) {
       setPreviewName('');
       setPreviewMime('');
-      toast.error(extractErrorMessage(err));
+      toast.error(await extractErrorMessageAsync(err));
     } finally {
       setPreviewLoading(false);
     }

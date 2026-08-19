@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { sectorsApi } from '@/api/sectors.api';
 import { requestTypesApi } from '@/api/request-types.api';
 
-import { extractErrorMessage } from '@/lib/errors';
+import { extractErrorMessageAsync } from '@/lib/errors';
 import { toast } from 'sonner';
 import { formatStatus } from '@/lib/format';
 import { Loader2, FileDown, Calendar, ArrowRight, AlertTriangle } from 'lucide-react';
@@ -37,7 +37,7 @@ export function ReportsPage() {
       triggerPdfDownload(blob, `${prefix}-${new Date().toISOString().slice(0, 10)}.pdf`);
       toast.success('Relatório gerado com sucesso!');
     } catch (err) {
-      toast.error(extractErrorMessage(err));
+      toast.error(await extractErrorMessageAsync(err));
     } finally {
       setLoading(false);
     }
