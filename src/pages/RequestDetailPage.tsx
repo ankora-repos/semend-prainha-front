@@ -576,7 +576,15 @@ export function RequestDetailPage() {
             </div>
             <div className="p-5 space-y-4">
               <InfoRow icon={User} label="Solicitante" value={request.requester.name} />
-              {request.requester.registrationNumber && <InfoRow icon={User} label="Matrícula" value={request.requester.registrationNumber} />}
+              {/* Matrícula do interessado quando informada; sem ela, a de quem protocolou
+                  (mesma regra do comprovante, para a tela bater com o papel). */}
+              {(request.requesterRegistrationNumber ?? request.requester.registrationNumber) && (
+                <InfoRow
+                  icon={User}
+                  label="Matrícula"
+                  value={request.requesterRegistrationNumber ?? request.requester.registrationNumber}
+                />
+              )}
               {request.requesterName && (
                 <InfoRow
                   icon={User}

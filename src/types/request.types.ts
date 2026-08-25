@@ -22,6 +22,8 @@ export interface ProtocolRequest {
   updatedAt: string;
   isOverdue: boolean;
   requesterName?: string | null;
+  /** Matrícula do interessado; em branco, usa a de quem protocolou. */
+  requesterRegistrationNumber?: string | null;
   requesterCpf?: string | null;
   requesterCnpj?: string | null;
   requesterRg?: string | null;
