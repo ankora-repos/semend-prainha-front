@@ -84,11 +84,14 @@ export function NewRequestPage() {
   }
 
   function getAge(birthDate: string): number {
+    // O campo entrega "AAAA-MM-DD". Comparar os componentes direto evita que o
+    // fuso desloque a data em um dia e reprove quem acabou de fazer 18 anos.
+    const [year, month, day] = birthDate.split('-').map(Number);
+    if (!year || !month || !day) return NaN;
     const today = new Date();
-    const birth = new Date(birthDate);
-    let age = today.getFullYear() - birth.getFullYear();
-    const m = today.getMonth() - birth.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+    let age = today.getFullYear() - year;
+    const m = today.getMonth() + 1 - month;
+    if (m < 0 || (m === 0 && today.getDate() < day)) age--;
     return age;
   }
 

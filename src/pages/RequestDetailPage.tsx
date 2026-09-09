@@ -11,7 +11,7 @@ import { sectorsApi } from '@/api/sectors.api';
 import { requestTypesApi } from '@/api/request-types.api';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
-import { formatStatus, statusColor, formatDateTime, formatDate, formatDeadline, formatFileSize } from '@/lib/format';
+import { formatStatus, statusColor, formatDateTime, formatDate, formatDateOnly, formatDeadline, formatFileSize } from '@/lib/format';
 import { canForward, canReceive, canChangeStatus, isAdmin } from '@/lib/permissions';
 import { extractErrorMessage, extractErrorMessageAsync } from '@/lib/errors';
 import { toast } from 'sonner';
@@ -595,7 +595,7 @@ export function RequestDetailPage() {
               {request.requesterCpf && <InfoRow icon={User} label="CPF" value={request.requesterCpf} />}
               {request.requesterCnpj && <InfoRow icon={Building2} label="CNPJ" value={request.requesterCnpj} />}
               {request.requesterRg && <InfoRow icon={User} label="RG" value={request.requesterRg} />}
-              {request.requesterBirthDate && <InfoRow icon={Clock} label="Data de Nascimento" value={formatDate(request.requesterBirthDate)} />}
+              {request.requesterBirthDate && <InfoRow icon={Clock} label="Data de Nascimento" value={formatDateOnly(request.requesterBirthDate)} />}
               <InfoRow icon={Building2} label="Setor de Origem" value={request.sectorOrigin?.name ?? 'Protocolo'} />
               <InfoRow icon={Building2} label="Setor Atual" value={request.currentSector.name} highlightBackground />
               <div className="pt-4 border-t border-surface-100/60 space-y-4">

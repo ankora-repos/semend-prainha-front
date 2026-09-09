@@ -34,6 +34,22 @@ export function formatDate(iso: string): string {
   });
 }
 
+/**
+ * Formata uma data de calendário — data de nascimento, por exemplo.
+ *
+ * Diferente de um instante, ela não tem hora nem fuso: chega como meia-noite
+ * UTC e precisa ser exibida em UTC. No horário do Brasil (UTC-3), a meia-noite
+ * UTC seria 21h do dia anterior e a data apareceria um dia antes.
+ */
+export function formatDateOnly(iso: string): string {
+  return new Date(iso).toLocaleDateString('pt-BR', {
+    timeZone: 'UTC',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
+}
+
 export function formatDateTime(iso: string): string {
   return new Date(iso).toLocaleDateString('pt-BR', {
     day: '2-digit',
