@@ -54,6 +54,9 @@ export function RequestDetailPage() {
   const [showChangeType, setShowChangeType] = useState(false);
   const [newTypeId, setNewTypeId] = useState('');
   const [changeTypeJustification, setChangeTypeJustification] = useState('');
+  const [showEditDescription, setShowEditDescription] = useState(false);
+  const [descriptionDraft, setDescriptionDraft] = useState('');
+  const [descriptionJustification, setDescriptionJustification] = useState('');
   const [forwardCode, setForwardCode] = useState('');
   const [forwardNotes, setForwardNotes] = useState('');
   const [newStatus, setNewStatus] = useState<RequestStatus>('EM_ANALISE');
@@ -133,6 +136,21 @@ export function RequestDetailPage() {
       queryClient.invalidateQueries({ queryKey: ['requests'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
       navigate('/protocolos');
+    },
+    onError: (err) => toast.error(extractErrorMessage(err)),
+  });
+
+  const updateDescriptionMutation = useMutation({
+    mutationFn: () =>
+      requestsApi.updateDescription(id!, descriptionDraft.trim(), descriptionJustification.trim()),
+    onSuccess: () => {
+      toast.success('Descrição atualizada!');
+      setShowEditDescription(false);
+      setDescriptionJustification('');
+      queryClient.invalidateQueries({ queryKey: ['requests', id] });
+      queryClient.invalidateQueries({ queryKey: ['requests'] });
+      // A edição entra no Registro de atividades sem precisar recarregar a página.
+      queryClient.invalidateQueries({ queryKey: ['protocol-activity', id] });
     },
     onError: (err) => toast.error(extractErrorMessage(err)),
   });
@@ -263,6 +281,21 @@ export function RequestDetailPage() {
   // Só CONCLUÍDO trava as ações. Deferido/indeferido seguem o fluxo (tramitar,
   // receber, alterar status, anexar) até o fim do fluxo ou até serem concluídos.
   const isTerminal = request.status === 'CONCLUIDO';
+
+  // Editar a descrição: quem criou o protocolo ou um admin (mesma regra do backend),
+  // exigindo a permissão de Enviar. Protocolos concluídos ficam travados.
+  const canEditDescription =
+    !!user &&
+    request.status !== 'CONCLUIDO' &&
+    (user.isSuperadmin || user.role.permissions.send) &&
+    (isAdmin(user) || request.requester.id === user.id);
+
+  function openEditDescription() {
+    setDescriptionDraft(request!.description);
+    setDescriptionJustification('');
+    setShowEditDescription(true);
+  }
+  const descriptionUnchanged = descriptionDraft.trim() === request.description.trim();
   const needsJustification = newStatus === 'INDEFERIDO' || newStatus === 'PENDENTE_DOCUMENTO';
 
   const availableStatuses: RequestStatus[] = [
@@ -449,6 +482,16 @@ export function RequestDetailPage() {
                <h3 className="text-sm font-bold text-surface-900 flex items-center gap-2 uppercase tracking-wider">
                  <MessageSquare className="h-4 w-4 text-primary-500" /> Descrição da Solicitação
                </h3>
+               {canEditDescription && (
+                 <button
+                   type="button"
+                   onClick={openEditDescription}
+                   title="Corrigir a descrição desta solicitação"
+                   className="inline-flex items-center gap-1.5 rounded-lg border border-surface-200/80 bg-white px-3 py-1.5 text-xs font-bold text-surface-700 shadow-sm hover:bg-surface-50 hover:border-surface-300 transition-all"
+                 >
+                   <Pencil className="h-3.5 w-3.5" /> Editar
+                 </button>
+               )}
              </div>
              <div className="p-6">
                <p className="text-sm text-surface-700 whitespace-pre-wrap leading-relaxed font-medium">
@@ -1023,6 +1066,55 @@ export function RequestDetailPage() {
         </Modal>
       )}
 
+      {/* Editar descrição (quem criou ou admin) */}
+      {showEditDescription && (
+        <Modal onClose={() => setShowEditDescription(false)} title="Editar descrição" icon={<Pencil className="h-5 w-5 text-primary-600" />}>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-bold text-surface-700 mb-1">Descrição da solicitação</label>
+              <textarea
+                value={descriptionDraft}
+                onChange={(e) => setDescriptionDraft(e.target.value)}
+                rows={6}
+                className="w-full rounded-xl border border-surface-200 bg-white px-4 py-2.5 text-sm text-surface-900 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100 resize-y"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-surface-700 mb-1">Justificativa (obrigatória)</label>
+              <textarea
+                value={descriptionJustification}
+                onChange={(e) => setDescriptionJustification(e.target.value)}
+                rows={2}
+                placeholder="Por que a descrição está sendo corrigida?"
+                className="w-full rounded-xl border border-surface-200 bg-white px-4 py-2.5 text-sm text-surface-900 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
+              />
+              <p className="mt-1 text-[11px] text-surface-500">
+                A alteração fica registrada no histórico do protocolo: quem editou, quando, o texto anterior e o motivo.
+              </p>
+            </div>
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button type="button" onClick={() => setShowEditDescription(false)} className="rounded-xl px-5 py-2.5 text-sm font-bold text-surface-600 hover:bg-surface-100 transition-colors">
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={() => updateDescriptionMutation.mutate()}
+                disabled={
+                  !descriptionDraft.trim() ||
+                  descriptionUnchanged ||
+                  descriptionJustification.trim().length < 5 ||
+                  updateDescriptionMutation.isPending
+                }
+                className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-primary-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+              >
+                {updateDescriptionMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Pencil className="h-4 w-4" />}
+                Salvar descrição
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
       {/* Trocar tipo de solicitação (admin) */}
       {showChangeType && (
         <Modal onClose={() => setShowChangeType(false)} title="Trocar tipo de solicitação" icon={<Repeat className="h-5 w-5 text-primary-600" />}>
@@ -1097,6 +1189,7 @@ const ACTION_CONFIG: Record<string, { icon: React.ElementType; label: string; co
   RENAME_ATTACHMENT: { icon: Pencil, label: 'Renomeou um anexo', color: 'text-amber-600 bg-amber-50' },
   VIEW_ATTACHMENT: { icon: Eye, label: 'Visualizou um anexo', color: 'text-info-600 bg-info-50' },
   STATUS_CHANGE: { icon: CheckCircle, label: 'Alterou o status', color: 'text-success-600 bg-success-50' },
+  UPDATE_PROTOCOL_DESCRIPTION: { icon: Pencil, label: 'Editou a descrição da solicitação', color: 'text-amber-600 bg-amber-50' },
 };
 
 function getActionDetail(activity: ProtocolActivity): string | null {
@@ -1114,6 +1207,9 @@ function getActionDetail(activity: ProtocolActivity): string | null {
   }
   if (activity.action === 'UPDATE' && after?.status) {
     return `Status: ${formatStatus(after.status as string)}`;
+  }
+  if (activity.action === 'UPDATE_PROTOCOL_DESCRIPTION' && after?.justification) {
+    return `Motivo: ${after.justification}`;
   }
   return null;
 }
@@ -1144,6 +1240,21 @@ function ActivityItem({ activity, isLast }: { activity: ProtocolActivity; isLast
         </div>
         {detail && (
           <p className="text-xs text-surface-500 mt-0.5 font-medium">{detail}</p>
+        )}
+        {activity.action === 'UPDATE_PROTOCOL_DESCRIPTION' && (
+          <details className="mt-1.5 text-xs">
+            <summary className="cursor-pointer font-bold text-primary-600 hover:text-primary-700">Ver o que mudou</summary>
+            <div className="mt-2 space-y-2 rounded-lg bg-surface-50 p-3">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-surface-400">Antes</p>
+                <p className="whitespace-pre-wrap text-surface-600">{String(activity.payloadBefore?.description ?? '')}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-surface-400">Depois</p>
+                <p className="whitespace-pre-wrap text-surface-800">{String(activity.payloadAfter?.description ?? '')}</p>
+              </div>
+            </div>
+          </details>
         )}
       </div>
     </div>

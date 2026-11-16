@@ -50,6 +50,12 @@ export const requestsApi = {
     const res = await api.patch(`/requests/${id}/request-type`, { requestTypeId, justification });
     return res.data;
   },
+
+  /** Edita a descrição de um protocolo (quem criou ou admin), com justificativa. */
+  async updateDescription(id: string, description: string, justification: string) {
+    const res = await api.patch(`/requests/${id}/description`, { description, justification });
+    return res.data;
+  },
 };
 
 export interface DeletedRequest {
